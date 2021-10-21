@@ -51,19 +51,42 @@
 
     <section id="addproject">
         <div class="container-lg my-2">
-        <form method="POST">
-            <div class="form-group">
-                <label for="email" class="form-label mt-4" autocomplete="off">Project Name</label>
-                <input type="text" class="form-control" id="project_name" name="project_name" placeholder="Project Name">
-            </div>
-            <div class="form-group">
-                <label for="name" class="form-label mt-4">Notes (optional)</label>
-                <textarea class="form-control" id="notes" name="notes" placeholder="Short description of your project (theme, goal, etc.)"></textarea>
-            </div>
-            <br>
-            <button type="submit" class="btn btn-primary">Add Project</button>
-        </form>
-
+            <form method="POST" action="">
+                {{ form.hidden_tag() }}
+                <fieldset class="form-group">
+                    <legend>Add a New Project</legend>
+                    <div class="form-group">
+                        {{ form.project_name.label(class="form-label mt-4") }}
+                        {% if form.project_name.errors %}
+                            {{ form.project_name(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.project_name.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.project_name(class="form-control") }}
+                        {% endif %} 
+                    </div>
+                    <div class="form-group">
+                        {{ form.notes.label(class="form-label mt-4") }}
+                        {% if form.notes.errors %}
+                            {{ form.notes(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.notes.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.notes(class="form-control") }}
+                        {% endif %}
+                    </div>
+                </fieldset>
+                <br>
+                <div class="form-group">
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
         </div>
     </section>
 

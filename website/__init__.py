@@ -1,10 +1,13 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
 from os import path
 from flask_login import LoginManager, login_manager
 
 db = SQLAlchemy()
 DB_NAME = "database.db"
+
+bcrypt =Bcrypt()
 
 def create_app():
     app = Flask(__name__)

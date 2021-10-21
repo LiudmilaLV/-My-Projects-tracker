@@ -17,4 +17,9 @@ class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     remember = BooleanField('Remember me')
-    submit = SubmitField('Login')    
+    submit = SubmitField('Login')
+    
+class AddProjectForm(FlaskForm):
+    project_name = StringField('Project Name', validators=[DataRequired(), Length(min=1, max=30)])
+    notes = StringField('Notes')
+    submit = SubmitField('Add Project')    

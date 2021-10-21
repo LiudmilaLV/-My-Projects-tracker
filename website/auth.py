@@ -2,7 +2,7 @@ from flask import Flask, Blueprint, render_template, request, flash, redirect, u
 from werkzeug.utils import redirect
 from .models import User
 from werkzeug.security import generate_password_hash, check_password_hash
-from . import db
+from . import db, bcrypt
 from flask_login import login_user, login_required, logout_user, current_user
 from .forms import RegistrationForm, LoginForm
 
@@ -14,7 +14,7 @@ def sign_up():
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if not user:
-            new_user = User(email=form.email.data, name=form.name.data, password=generate_password_hash(form.password.data, method='sha256'))
+            new_user = User(email=form.email.data, name=form.name.data, password=bcrypt.generate_password_hash(form.password.data).decode('utf-8'))
             db.session.add(new_user)
             db.session.commit()
             login_user(new_user, remember=True)
