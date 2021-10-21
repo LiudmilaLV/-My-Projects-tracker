@@ -9,6 +9,7 @@ views = Blueprint('views', __name__)
 @login_required
 def home():
     if request.method == 'POST':
+        # form = AddProject
         project_name = request.form.get('project_name')
         notes = request.form.get('notes')
         if len(project_name) < 1:

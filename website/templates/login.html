@@ -1,20 +1,56 @@
 {% extends "base.html" %}
 {% block title %}Login{% endblock %}
 {% block content %}
-
-<form method="POST">
-    <h3 align="center">Login</h3>
-    <div class="form-group">
-        <label for="email" class="form-label mt-4">Email Address</label>
-        <input type="email" class="form-control" id="email" name="email" placeholder="Enter email">
-    </div>
-    <div class="form-group">
-        <label for="password" class="form-label mt-4">Password</label>
-        <input type="password" class="form-control" id="password" name="password" placeholder="Enter password">
-    </div>
+<div class="container-lg my-2" >
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend>Login</legend>
+            <div class="form-group">
+                {{ form.email.label(class="form-label mt-4") }}
+                {% if form.email.errors %}
+                    {{ form.email(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.email.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.email(class="form-control") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.password.label(class="form-label mt-4") }}
+                {% if form.password.errors %}
+                    {{ form.password(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.password.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.password(class="form-control") }}
+                {% endif %}           
+            </div>
+            <div class="form-check">
+                {{ form.remember(class="form-check-input") }}
+                {{ form.remember.label(class="form-check-label") }}
+            </div>
+        </fieldset>
+        <br>
+        <div class="form-group">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+        <small class="text-muted ml-2">
+            <a href="#">Forgot password?</a>
+        </small>
+    </form>
     <br>
-    <button type="submit" class="btn btn-primary">Login</button>
-</form>
-
+    <div class="border-top pt-3">
+        <small class="text-muted">
+            Need an account? <a class="ml-2" href="{{ url_for('auth.sign_up') }}">Sign Up</a>
+        </small>
+    </div>
+</div>
 
 {% endblock %}

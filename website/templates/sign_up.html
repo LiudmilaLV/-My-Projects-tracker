@@ -1,25 +1,74 @@
 {% extends "base.html" %}
 {% block title %}Sign up{% endblock %}
 {% block content %}
-<form method="POST">
-    <h3 align="center">Sign Up</h3>
-    <div class="form-group">
-        <label for="email" class="form-label mt-4">Email Address</label>
-        <input type="email" class="form-control" id="email" name="email" placeholder="Enter email">
-    </div>
-    <div class="form-group">
-        <label for="name" class="form-label mt-4">Name</label>
-        <input type="text" class="form-control" id="name" name="name" placeholder="Enter your name">
-    </div>
-    <div class="form-group">
-        <label for="password" class="form-label mt-4">Password</label>
-        <input type="password" class="form-control" id="password1" name="password1" placeholder="Enter password">
-    </div>
-    <div class="form-group">
-        <label for="password" class="form-label mt-4">Password Confirmation</label>
-        <input type="password" class="form-control" id="password2" name="password2" placeholder="Confirm password">
-    </div>
+<div class="container-lg my-2">
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend>Sign Up</legend>
+            <div class="form-group">
+                {{ form.name.label(class="form-label mt-4") }}
+                {% if form.name.errors %}
+                    {{ form.name(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.name.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.name(class="form-control") }}
+                {% endif %} 
+            </div>
+            <div class="form-group">
+                {{ form.email.label(class="form-label mt-4") }}
+                {% if form.email.errors %}
+                    {{ form.email(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.email.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.email(class="form-control") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.password.label(class="form-label mt-4") }}
+                {% if form.password.errors %}
+                    {{ form.password(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.password.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.password(class="form-control") }}
+                {% endif %}           
+            </div>
+            <div class="form-group">
+                {{ form.confirm_password.label(class="form-label mt-4") }}
+                {% if form.confirm_password.errors %}
+                    {{ form.confirm_password(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.confirm_password.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.confirm_password(class="form-control") }}
+                {% endif %} 
+            </div>
+        </fieldset>
+        <br>
+        <div class="form-group">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
     <br>
-    <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+    <div class="border-top pt-3">
+        <small class="text-muted">
+            Already have an account? <a class="ml-2" href="{{ url_for('auth.login') }}">Login</a>
+        </small>
+    </div>
+</div>
 {% endblock %}

@@ -1,39 +1,70 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block content %}
-<section class="homesection">
-    <h1>Hi, {{user.name}}!</h1>
-    {% if user.projects %}
-        <div class="dashboard">
-            <h4>Your projects:</h4>
-            {% for project in user.projects %}
-                <div class="card text-white bg-primary mb-3" style="max-width: 20rem;">
-                    <div class="card-body">
-                        <h4 class="card-title">{{project.project_name}}</h4>
-                        <p class="card-text">{{project.notes}}</p>
+    <section id="dashboard">
+        <div class="container-lg my-2">
+            {% if not user.projects %}
+            <!-- If User does'n have any projects-->
+                <div class="row justify-content-between">
+                    <div class="col-4 col-md-4 text-center text-md-start d-flex align-content-between flex-wrap">
+                        <div class="display-2">Hi, {{user.name}}!</div>
+                        <div class="display-5 text-muted">No projects yet?</div>
+                        <a href="#addproject" class="btn btn-lg btn-secondary">Add a project to track:</a>
+                    </div>
+                    <div class="col-8 col-md-5 text-center">
+                        <div class="display-3">Welcome to the Project Tracker!</div>
+                        <div class="display-6 text-muted">Here is how it works:</div>
+                        <!-- Carousel ? -->
                     </div>
                 </div>
+                
+            {% else %} 
+            <!-- If User has projects (up to 5)-->
+            <div class="row justify-content-between">
+                <div class="col-4 col-md-4 text-center text-md-start d-flex align-content-between flex-wrap">
+                    <div class="display-2">Hi, {{user.name}}!</div>
+                    <div class="display-5 text-muted">Your projects:</div>
+                    {% for project in user.projects %}
+                        <div class="card text-white bg-primary mb-3" style="max-width: 20rem;">
+                            <div class="card-body">
+                                <h4 class="card-title">{{project.project_name}}</h4>
+                                <p class="card-text">{{project.notes}}</p>
+                            </div>
+                        </div>
+                    {% endfor %}   
+                    <a href="#addproject" class="btn btn-lg btn-secondary">Add a new project to track:</a>
+                </div>
+                <div class="col-8 col-md-5 text-center">
+                    <div class="display-5">Your progress this month:</div>
+                    <div class="display-6 text-muted">Here is a pie chart</div>
+                    <!-- Carousel ? -->
+                </div>
+            </div>
+            {% endif %}
+    </section>
+
+    <!-- {% if user.projects %}
+            {% for project in user.projects %}
+                Loooping through projects creating <section id="projectcard"> (up to 5)
+            {% endfor %}
+        {% endif %} -->
+
+    <section id="addproject">
+        <div class="container-lg my-2">
+        <form method="POST">
+            <div class="form-group">
+                <label for="email" class="form-label mt-4" autocomplete="off">Project Name</label>
+                <input type="text" class="form-control" id="project_name" name="project_name" placeholder="Project Name">
+            </div>
+            <div class="form-group">
+                <label for="name" class="form-label mt-4">Notes (optional)</label>
+                <textarea class="form-control" id="notes" name="notes" placeholder="Short description of your project (theme, goal, etc.)"></textarea>
+            </div>
+            <br>
+            <button type="submit" class="btn btn-primary">Add Project</button>
+        </form>
+
         </div>
-        {% endfor %}     
-    {% else%}
-    <div>
-        <p class="lead">No projects yet!</p>
-    </div>   
-    {% endif %}
-    <button class="btn btn-lg btn-primary" type="button">Add a new project to track:</button>
-</section>
-    <form method="POST">
-        <div class="form-group">
-            <label for="email" class="form-label mt-4" autocomplete="off">Project Name</label>
-            <input type="text" class="form-control" id="project_name" name="project_name" placeholder="Project Name">
-        </div>
-        <div class="form-group">
-            <label for="name" class="form-label mt-4">Notes (optional)</label>
-            <textarea class="form-control" id="notes" name="notes" placeholder="Short description of your project (theme, goal, etc.)"></textarea>
-        </div>
-        <br>
-        <button type="submit" class="btn btn-primary">Add Project</button>
-    </form>
-    
+    </section>
 
 {% endblock %}
