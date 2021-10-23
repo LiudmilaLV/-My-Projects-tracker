@@ -1,7 +1,18 @@
-#dashboard {
+#greet {
     height: 100vh;
 }
 
 section {
-    padding: 10vh;
+    height: 100vh;
+    padding: 5vh 10vh;
+}
+
+#leftgreet {
+    justify-content: space-around;
+    align-content: space-around;
+}
+
+.projectlist {
+    display: flex;
+    justify-content: space-around;
 }

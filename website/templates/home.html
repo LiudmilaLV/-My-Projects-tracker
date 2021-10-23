@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block content %}
-    <section id="dashboard">
+    <section id="greet">
         <div class="container-lg my-2">
             {% if not user.projects %}
             <!-- If User does'n have any projects-->
                 <div class="row justify-content-between">
                     <div class="col-4 col-md-4 text-center text-md-start d-flex align-content-between flex-wrap">
-                        <div class="display-2">Hi, {{user.name}}!</div>
-                        <div class="display-5 text-muted">No projects yet?</div>
+                        <div class="display-3">Hi, {{user.name}}!</div>
+                        <div class="display-6 text-muted">No projects yet?</div>
                         <a href="#addproject" class="btn btn-lg btn-secondary">Add a project to track:</a>
                     </div>
                     <div class="col-8 col-md-5 text-center">
@@ -21,20 +21,22 @@
             {% else %} 
             <!-- If User has projects (up to 5)-->
             <div class="row justify-content-between">
-                <div class="col-4 col-md-4 text-center text-md-start d-flex align-content-between flex-wrap">
-                    <div class="display-2">Hi, {{user.name}}!</div>
-                    <div class="display-5 text-muted">Your projects:</div>
-                    {% for project in user.projects %}
-                        <div class="card text-white bg-primary mb-3" style="max-width: 20rem;">
-                            <div class="card-body">
-                                <h4 class="card-title">{{project.project_name}}</h4>
-                                <p class="card-text">{{project.notes}}</p>
+                <div class="col-6 col-md-4 text-center text-md-start d-flex align-content-between flex-wrap" id="leftgreet">
+                    <div class="display-3">Hi, {{user.name}}!</div>
+                    <div class="display-6 text-muted">Your projects:</div>
+                    <div class="projectlist">
+                        {% for project in user.projects %}
+                            <div class="card text-white bg-primary mb-3">
+                                <a class="card-body" href="#{{ project.project_name }}">
+                                    <h4 class="card-title">{{project.project_name}}</h4>
+                                </a>
                             </div>
-                        </div>
-                    {% endfor %}   
-                    <a href="#addproject" class="btn btn-lg btn-secondary">Add a new project to track:</a>
+                        {% endfor %}
+                    </div>
+                    <p>or add a <a href="#addproject" class="btn btn-lg btn-secondary my-5">new project</a> to track</p>
+                    
                 </div>
-                <div class="col-8 col-md-5 text-center">
+                <div class="col-6 col-md-5 text-center">
                     <div class="display-5">Your progress this month:</div>
                     <div class="display-6 text-muted">Here is a pie chart</div>
                     <!-- Carousel ? -->
@@ -43,48 +45,81 @@
             {% endif %}
     </section>
 
-    <!-- {% if user.projects %}
-            {% for project in user.projects %}
-                Loooping through projects creating <section id="projectcard"> (up to 5)
-            {% endfor %}
-        {% endif %} -->
+    <!-- Project cards (up to 5) -->
+    {% if user.projects %}
+        {% for project in user.projects %}
+            <!-- Loooping through projects creating a section for each project-->
+            <section id="{{ project.project_name }}">
+                <div>
+                    <div class="display-3" style="text-align: center;">{{ project.project_name }}</div>
+                    <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link active" id="pills-stats-tab" data-bs-toggle="pill" data-bs-target="#pills-stats" type="button" role="tab" aria-controls="pills-stats" aria-selected="true">stats</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Profile</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Contact</button>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Dropdown</a>
+                            <ul class="dropdown-menu">
+                              <li><a class="dropdown-item" href="#">Action</a></li>
+                              <li><a class="dropdown-item" href="#">Another action</a></li>
+                              <li><a class="dropdown-item" href="#">Something else here</a></li>
+                              <li><hr class="dropdown-divider"></li>
+                              <li><a class="dropdown-item" href="#">Separated link</a></li>
+                            </ul>
+                          </li>
+                      </ul>
+                      <div class="tab-content" id="pills-tabContent">
+                        <div class="tab-pane fade show active" id="pills-stats" role="tabpanel" aria-labelledby="pills-stats-tab">Stats</div>
+                        <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">...</div>
+                        <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">...</div>
+                      </div>
+
+                </div>
+            </section>
+        {% endfor %}
+    {% endif %}
 
     <section id="addproject">
         <div class="container-lg my-2">
-            <form method="POST" action="">
-                {{ form.hidden_tag() }}
+            <form method="POST" action="#">
+                {{ project_form.hidden_tag() }}
                 <fieldset class="form-group">
                     <legend>Add a New Project</legend>
                     <div class="form-group">
-                        {{ form.project_name.label(class="form-label mt-4") }}
-                        {% if form.project_name.errors %}
-                            {{ form.project_name(class="form-control is-invalid") }}
+                        {{ project_form.project_name.label(class="form-label mt-4") }}
+                        {% if project_form.project_name.errors %}
+                            {{ project_form.project_name(class="form-control is-invalid") }}
                             <div class="invalid-feedback">
-                                {% for error in form.project_name.errors %}
+                                {% for error in project_form.project_name.errors %}
                                     <span>{{ error }}</span>
                                 {% endfor %}
                             </div>
                         {% else %}
-                            {{ form.project_name(class="form-control") }}
+                            {{ project_form.project_name(class="form-control") }}
                         {% endif %} 
                     </div>
                     <div class="form-group">
-                        {{ form.notes.label(class="form-label mt-4") }}
-                        {% if form.notes.errors %}
-                            {{ form.notes(class="form-control is-invalid") }}
+                        {{ project_form.notes.label(class="form-label mt-4") }}
+                        {% if project_form.notes.errors %}
+                            {{ project_form.notes(class="form-control is-invalid") }}
                             <div class="invalid-feedback">
-                                {% for error in form.notes.errors %}
+                                {% for error in project_form.notes.errors %}
                                     <span>{{ error }}</span>
                                 {% endfor %}
                             </div>
                         {% else %}
-                            {{ form.notes(class="form-control") }}
+                            {{ project_form.notes(class="form-control") }}
                         {% endif %}
                     </div>
                 </fieldset>
                 <br>
                 <div class="form-group">
-                    {{ form.submit(class="btn btn-primary") }}
+                    {{ project_form.submit(class="btn btn-primary") }}
                 </div>
             </form>
         </div>
