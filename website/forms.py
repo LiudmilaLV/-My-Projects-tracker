@@ -1,7 +1,8 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
-from wtforms.fields.core import DateField, IntegerField
-from wtforms.fields.simple import PasswordField
+from wtforms.fields.core import IntegerField
+from wtforms.fields.html5 import DateField
+from wtforms.fields.simple import HiddenField, PasswordField
 from wtforms.validators import DataRequired, EqualTo, Length, Email, ValidationError, NumberRange
 from .models import User
 from . import db
@@ -35,5 +36,7 @@ class AddProjectForm(FlaskForm):
     submit = SubmitField('Add Project')
     
 class EntryForm(FlaskForm):
-    date = DateField('Date', validators=[DataRequired()])
-    duration = IntegerField('Duration', validators=[DataRequired(), NumberRange(min=1, max=None, message='Enter atleast 1 minute')])    
+    date = DateField('Date')
+    duration = IntegerField('Duration (in minutes)', validators=[DataRequired(), NumberRange(min=1, max=None, message='Enter atleast 1 minute')])
+    project = HiddenField(default="{{ current_project.id }}")
+    submit = SubmitField('Add Time')    

@@ -20,7 +20,7 @@ class Project(db.Model):
     entries = db.relationship('Entry')
     
     def __repr__(self):
-        return f"User('{self.project_name}')"
+        return f"Project('{self.project_name}')"
         
     
 class Entry(db.Model):
@@ -30,4 +30,4 @@ class Entry(db.Model):
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=False)
     
     def __repr__(self):
-        return f"User('{self.date}', '{self.duration}')"
+        return f"Model('{self.date}', '{self.duration}')"

@@ -2,7 +2,7 @@
 {% block title %}Home{% endblock %}
 {% block content %}
     <section id="greet">
-        <div class="container-lg my-2">
+        <div class="container-lg my-3">
             {% if not user.projects %}
             <!-- If User does'n have any projects-->
                 <div class="row justify-content-between">
@@ -13,79 +13,42 @@
                     </div>
                     <div class="col-8 col-md-5 text-center">
                         <div class="display-3">Welcome to the Project Tracker!</div>
-                        <div class="display-6 text-muted">Here is how it works:</div>
-                        <!-- Carousel ? -->
+                        <!-- <div class="display-6 text-muted">Here is how it works:</div>
+                         Carousel ? -->
                     </div>
                 </div>
                 
             {% else %} 
-            <!-- If User has projects (up to 5)-->
-            <div class="row justify-content-between">
-                <div class="col-6 col-md-4 text-center text-md-start d-flex align-content-between flex-wrap" id="leftgreet">
-                    <div class="display-3">Hi, {{user.name}}!</div>
-                    <div class="display-6 text-muted">Your projects:</div>
-                    <div class="projectlist">
-                        {% for project in user.projects %}
-                            <div class="card text-white bg-primary mb-3">
-                                <a class="card-body" href="#{{ project.project_name }}">
-                                    <h4 class="card-title">{{project.project_name}}</h4>
-                                </a>
-                            </div>
-                        {% endfor %}
+            <!-- If User has projects -->
+            <div class="container-lg my-3">
+                <div class="row justify-content-between">
+                    <div class="col-6 col-md-4 text-center text-md-start d-flex align-content-between flex-wrap" id="leftgreet">
+                        <div class="display-3">Hi, {{user.name}}!</div>
+                        <div class="display-6 text-muted">Your projects:</div>
+                        <div class="projectlist">
+                            {% for project in user.projects %}
+                                <div class="card text-white bg-primary mb-3">
+                                    <a class="card-body" href="{{ url_for('views.project', name=project.project_name) }}">
+                                        <h4 class="card-title">{{project.project_name}}</h4>
+                                    </a>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <p>Add a <a href="#addproject" class="btn btn-lg btn-secondary my-5">new project</a> to track</p>
+                        
                     </div>
-                    <p>or add a <a href="#addproject" class="btn btn-lg btn-secondary my-5">new project</a> to track</p>
-                    
-                </div>
-                <div class="col-6 col-md-5 text-center">
-                    <div class="display-5">Your progress this month:</div>
-                    <div class="display-6 text-muted">Here is a pie chart</div>
-                    <!-- Carousel ? -->
+                    <div class="col-6 col-md-5 text-center">
+                        <div class="display-5">Your progress this month:</div>
+                        <div class="display-6 text-muted">Here is a pie chart</div>
+                        <!-- Pie chart ? -->
                 </div>
             </div>
             {% endif %}
+        </div>
     </section>
 
-    <!-- Project cards (up to 5) -->
-    {% if user.projects %}
-        {% for project in user.projects %}
-            <!-- Loooping through projects creating a section for each project-->
-            <section id="{{ project.project_name }}">
-                <div>
-                    <div class="display-3" style="text-align: center;">{{ project.project_name }}</div>
-                    <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-                        <li class="nav-item" role="presentation">
-                          <button class="nav-link active" id="pills-stats-tab" data-bs-toggle="pill" data-bs-target="#pills-stats" type="button" role="tab" aria-controls="pills-stats" aria-selected="true">stats</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                          <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Profile</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                          <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Contact</button>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Dropdown</a>
-                            <ul class="dropdown-menu">
-                              <li><a class="dropdown-item" href="#">Action</a></li>
-                              <li><a class="dropdown-item" href="#">Another action</a></li>
-                              <li><a class="dropdown-item" href="#">Something else here</a></li>
-                              <li><hr class="dropdown-divider"></li>
-                              <li><a class="dropdown-item" href="#">Separated link</a></li>
-                            </ul>
-                          </li>
-                      </ul>
-                      <div class="tab-content" id="pills-tabContent">
-                        <div class="tab-pane fade show active" id="pills-stats" role="tabpanel" aria-labelledby="pills-stats-tab">Stats</div>
-                        <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">...</div>
-                        <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">...</div>
-                      </div>
-
-                </div>
-            </section>
-        {% endfor %}
-    {% endif %}
-
     <section id="addproject">
-        <div class="container-lg my-2">
+        <div class="container-lg my-3">
             <form method="POST" action="#">
                 {{ project_form.hidden_tag() }}
                 <fieldset class="form-group">

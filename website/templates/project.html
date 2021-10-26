@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}
+{{ name }}
+{% endblock %}
+
+{% block content %}
+    <section id="greet">
+        <div class="container-lg my-1">
+            <div class="display-5" style="text-align: center;">Project "{{ name }}"</div>
+                <div class="container-lg my-3">
+                    <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="pills-stats-tab" data-bs-toggle="pill" data-bs-target="#pills-stats" type="button" role="tab" aria-controls="pills-stats" aria-selected="true">Stats</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="pills-addtime-tab" data-bs-toggle="pill" data-bs-target="#pills-addtime" type="button" role="tab" aria-controls="pills-addtime" aria-selected="false">Add Time</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="pills-timer-tab" data-bs-toggle="pill" data-bs-target="#pills-timer" type="button" role="tab" aria-controls="pills-timer" aria-selected="false">Use Timer</button>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">More</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">Change color scheme</a></li>
+                                <li><a class="dropdown-item" href="#">Edit project</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#">Delete Project</a></li>
+                            </ul>
+                            </li>
+                        </ul>
+                        <div class="tab-content" id="pills-tabContent">
+                        <div class="tab-pane fade show active" id="pills-stats" role="tabpanel" aria-labelledby="pills-stats-tab">Stats</div>
+                        <div class="tab-pane fade" id="pills-addtime" role="tabpanel" aria-labelledby="pills-addtime-tab">
+                            <div class="container-lg my-2">
+                                <form method="POST" action="#pills-addtime">
+                                    {{ entry_form.hidden_tag() }}
+                                    <fieldset class="form-group">
+                                        <legend>Add Time to the Project</legend>
+                                        <div class="form-group">
+                                            {{ entry_form.date.label(class="form-label mt-4") }}
+                                            {% if entry_form.date.errors %}
+                                                {{ entry_form.date(class="form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in entry_form.date.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ entry_form.date(class="form-control") }}
+                                            {% endif %} 
+                                        </div>
+                                        <div class="form-group">
+                                            {{ entry_form.duration.label(class="form-label mt-4") }}
+                                            {% if entry_form.duration.errors %}
+                                                {{ entry_form.duration(class="form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in entry_form.duration.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ entry_form.duration(class="form-control") }}
+                                            {% endif %}
+                                        </div>
+                                    </fieldset>
+                                    <br>
+                                    <div class="form-group">
+                                        {{ entry_form.submit(class="btn btn-primary") }}
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="pills-timer" role="tabpanel" aria-labelledby="pills-timer-tab">Use timer</div>
+                        </div>
+                </div>
+        </div>
+    </section>
+{% endblock %}
