@@ -49,8 +49,9 @@
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}
-          <div class="alert alert-{{ category }} border text-center" role="alert">
+          <div class="alert alert-{{ category }} alert-dismissable text-center">
             {{ message }}
+            <button type="button" class="btn-close mx-5" data-bs-dismiss="alert"></button>
           </div>
         {% endfor %}
       {% endif %}

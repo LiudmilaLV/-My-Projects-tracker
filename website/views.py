@@ -1,11 +1,10 @@
 from flask import Blueprint, render_template, flash, abort, url_for
 from werkzeug.utils import redirect
 from flask_login import login_required, current_user
-from sqlalchemy.orm import selectin_polymorphic
-from flask_sqlalchemy import SQLAlchemy
 from .models import User, Project, Entry
 from . import db
 from .forms import AddProjectForm, EntryForm
+from sqlalchemy import and_
 
 views = Blueprint('views', __name__)
 
@@ -28,13 +27,14 @@ def home():
 @login_required
 def project(project_id):
     current_project = Project.query.filter(Project.id==project_id, Project.owner==current_user).first_or_404()
-    last10 = Entry.query.filter(Project.id==project_id, Project.owner==current_user).order_by(Entry.date.desc()).limit(10).all()
+    last10 = Entry.query.join(Project).filter(and_(Entry.project_id==project_id, Project.owner==current_user)).order_by(Entry.date.desc()).limit(10).all()
     entry_form = EntryForm()       
     if entry_form.validate_on_submit():    
         new_entry = Entry(date=entry_form.date.data, duration=entry_form.duration.data, project_id=current_project.id)
         db.session.add(new_entry)
         db.session.commit()
         flash(f'{entry_form.duration.data} minutes added to the project!', category='success')
+        return redirect(url_for('views.project', project_id=current_project.id))
     return render_template("project.html", user=current_user, project_id=current_project.id, name=current_project.project_name, notes=current_project.notes, entry_form=entry_form, last10=last10)
 
 @views.route('project/<int:project_id>/delete', methods=['POST'])
@@ -50,4 +50,14 @@ def delete_project(project_id):
     db.session.commit()
     flash(f'Project "{current_project.project_name} has been deleted!', category='success')
     return redirect(url_for('views.home'))
+    
+    
+@views.route('project/delete/<int:entry_id>')
+@login_required
+def delete_entry(entry_id):
+    current_entry = Entry.query.join(Project).filter(and_(Entry.id==entry_id, Project.owner==current_user)).first_or_404(entry_id)
+    db.session.delete(current_entry)
+    db.session.commit()
+    flash(f'{current_entry.duration} minutes has been deleted!', category='success')
+    return redirect(url_for('views.project', project_id=current_entry.project_id))
     
