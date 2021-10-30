@@ -40,3 +40,8 @@ class EntryForm(FlaskForm):
     duration = IntegerField('Duration (in minutes)', validators=[DataRequired(), NumberRange(min=1, max=None, message='Enter atleast 1 minute')])
     project = HiddenField(default="{{ current_project.id }}")
     submit = SubmitField('Add Time to the Project')    
+
+class EditProjectForm(FlaskForm):
+    project_name = StringField('New Project Name', validators=[DataRequired(), Length(min=1, max=30)])
+    notes = StringField('Notes (optional)')
+    submit = SubmitField('Submit Changes')

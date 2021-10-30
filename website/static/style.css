@@ -11,8 +11,3 @@ section {
     justify-content: space-around;
     align-content: space-around;
 }
-
-.projectlist {
-    display: flex;
-    justify-content: space-around;
-}

@@ -3,7 +3,7 @@ from werkzeug.utils import redirect
 from flask_login import login_required, current_user
 from .models import User, Project, Entry
 from . import db
-from .forms import AddProjectForm, EntryForm
+from .forms import AddProjectForm, EditProjectForm, EntryForm
 from sqlalchemy import and_
 
 views = Blueprint('views', __name__)
@@ -35,7 +35,10 @@ def project(project_id):
         db.session.commit()
         flash(f'{entry_form.duration.data} minutes added to the project!', category='success')
         return redirect(url_for('views.project', project_id=current_project.id))
-    return render_template("project.html", user=current_user, project_id=current_project.id, name=current_project.project_name, notes=current_project.notes, entry_form=entry_form, last10=last10)
+    edit_project_form = EditProjectForm()
+    edit_project_form.project_name.data = current_project.project_name
+    edit_project_form.notes.data = current_project.notes
+    return render_template("project.html", user=current_user, project_id=current_project.id, name=current_project.project_name, notes=current_project.notes, entry_form=entry_form, edit_project_form=edit_project_form, last10=last10)
 
 @views.route('project/<int:project_id>/delete', methods=['POST'])
 @login_required
@@ -50,7 +53,20 @@ def delete_project(project_id):
     db.session.commit()
     flash(f'Project "{current_project.project_name} has been deleted!', category='success')
     return redirect(url_for('views.home'))
-    
+
+@views.route('project/<int:project_id>/edit', methods=['POST'])
+@login_required
+def edit_project(project_id):
+    current_project = Project.query.filter(Project.id==project_id, Project.owner==current_user).first_or_404()
+    if current_project.owner != current_user:
+        abort(403)
+    edit_project_form = EditProjectForm()
+    if edit_project_form.validate_on_submit():
+        current_project.project_name = edit_project_form.project_name.data
+        current_project.notes = edit_project_form.notes.data
+        db.session.commit()
+        flash('Changes has been saved!', category='success')
+        return redirect(url_for('views.project', project_id=current_project.id)) 
     
 @views.route('project/delete/<int:entry_id>')
 @login_required
@@ -60,4 +76,3 @@ def delete_entry(entry_id):
     db.session.commit()
     flash(f'{current_entry.duration} minutes has been deleted!', category='success')
     return redirect(url_for('views.project', project_id=current_entry.project_id))
-    

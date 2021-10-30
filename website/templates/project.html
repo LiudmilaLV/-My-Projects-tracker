@@ -91,10 +91,46 @@
                                 </div>
                                 <div class="tab-content" id="v-pills-tabContent">
                                     <div class="tab-pane fade show active" id="v-pills-edit" role="tabpanel" aria-labelledby="v-pills-edit-tab">
-                                        <div class="my-5 mx-5 container"> 
-                                            <h4>Edit Project Name and Notes</h4>
+                                        <div class="container"> 
+                                            <div class="container mx-5">
+                                                <form action="{{ url_for('views.edit_project', project_id=project_id) }}" method="POST">
+                                                    {{ edit_project_form.hidden_tag() }}
+                                                    <fieldset class="form-group">
+                                                        <div class="form-group">
+                                                            {{ edit_project_form.project_name.label(class="form-label mt-4") }}
+                                                            {% if edit_project_form.project_name.errors %}
+                                                                {{ edit_project_form.project_name(class="form-control is-invalid") }}
+                                                                <div class="invalid-feedback">
+                                                                    {% for error in edit_project_form.project_name.errors %}
+                                                                        <span>{{ error }}</span>
+                                                                    {% endfor %}
+                                                                </div>
+                                                            {% else %}
+                                                                {{ edit_project_form.project_name(class="form-control") }}
+                                                            {% endif %} 
+                                                        </div>
+                                                        <div class="form-group">
+                                                            {{ edit_project_form.notes.label(class="form-label mt-4") }}
+                                                            {% if edit_project_form.notes.errors %}
+                                                                {{ edit_project_form.notes(class="form-control is-invalid") }}
+                                                                <div class="invalid-feedback">
+                                                                    {% for error in edit_project_form.notes.errors %}
+                                                                        <span>{{ error }}</span>
+                                                                    {% endfor %}
+                                                                </div>
+                                                            {% else %}
+                                                                {{ edit_project_form.notes(class="form-control") }}
+                                                            {% endif %}
+                                                        </div>
+                                                    </fieldset>
+                                                    <br>
+                                                    <div class="form-group">
+                                                        {{ edit_project_form.submit(class="btn btn-primary") }}
+                                                    </div>
+                                                </form>
+                                            </div>
                                             <div>
-                                                <button type="button" class="btn btn-danger btn-lg m-1"  data-bs-toggle="modal" data-bs-target="#deleteProjectModal" >Delete Project</button>
+                                                <button type="button" class="btn btn-danger btn-lg my-5 mx-5"  data-bs-toggle="modal" data-bs-target="#deleteProjectModal" >Delete Project</button>
                                             </div>
                                         </div>
                                     </div>

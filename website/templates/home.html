@@ -5,19 +5,18 @@
         <div class="container-lg my-3">
             {% if not user.projects %}
             <!-- If User does'n have any projects-->
-                <div class="row justify-content-between">
-                    <div class="col-4 col-md-4 text-center text-md-start d-flex align-content-between flex-wrap">
+                <div class="row justify-content-around">
+                    <div class="col-4 text-center">
                         <div class="display-3">Hi, {{user.name}}!</div>
                         <div class="display-6 text-muted">No projects yet?</div>
-                        <a href="#addproject" class="btn btn-lg btn-secondary">Add a project to track:</a>
                     </div>
-                    <div class="col-8 col-md-5 text-center">
+                    <div class="col-8 text-center">
                         <div class="display-3">Welcome to the Project Tracker!</div>
                         <!-- <div class="display-6 text-muted">Here is how it works:</div>
                         Carousel ? -->
                     </div>
                 </div>
-                
+                <div class="m-5"><a href="#addproject" class="btn btn-lg btn-primary my-5">Add a new project to track</a></div>
             {% else %} 
             <!-- If User has projects -->
             <div class="container-lg my-3">
@@ -25,24 +24,21 @@
                     <div class="col-md-6 text-center text-md-start d-flex align-content-center flex-wrap" id="leftgreet">
                         <div class="display-3">Hi, {{user.name}}!</div>
                         <div class="display-6 text-muted">Your projects:</div>
-                        <div class="projectlist">
                             {% for project in user.projects %}
-                                <div class="card text-white bg-primary mb-3">
-                                    <a class="card-body" href="{{ url_for('views.project', project_id=project.id) }}">
-                                        <h4 class="card-title">{{project.project_name}}</h4>
+                                <div class="btn mb-2">
+                                    <a href="{{ url_for('views.project', project_id=project.id) }}">
+                                        {{project.project_name}}
                                     </a>
                                 </div>
                             {% endfor %}
-                        </div>
-                        <div>Add a <a href="#addproject" class="btn btn-lg btn-secondary my-5">new project</a> to track</div>
-                        
                     </div>
                     <div class="col-md-6 text-center">
                         <div class="display-5">Your progress this month:</div>
                         <div class="display-6 text-muted">Here is a pie chart</div>
                         <!-- Pie chart ? -->
+                    </div>   
                 </div>
-            </div>
+                <div class="m-5"><a href="#addproject" class="btn btn-lg btn-primary my-5">Add a new project  to track</a></div>
             {% endif %}
         </div>
     </section>
