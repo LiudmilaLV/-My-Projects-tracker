@@ -45,3 +45,7 @@ class EditProjectForm(FlaskForm):
     project_name = StringField('New Project Name', validators=[DataRequired(), Length(min=1, max=30)])
     notes = StringField('Notes (optional)')
     submit = SubmitField('Submit Changes')
+    
+class ResetRequestForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    submit = SubmitField('Reset Password')

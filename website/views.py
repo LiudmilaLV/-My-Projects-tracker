@@ -3,7 +3,7 @@ from werkzeug.utils import redirect
 from flask_login import login_required, current_user
 from .models import User, Project, Entry
 from . import db
-from .forms import AddProjectForm, EditProjectForm, EntryForm
+from .forms import AddProjectForm, EditProjectForm, EntryForm, ResetRequestForm
 from sqlalchemy import and_
 
 views = Blueprint('views', __name__)
@@ -76,3 +76,17 @@ def delete_entry(entry_id):
     db.session.commit()
     flash(f'{current_entry.duration} minutes has been deleted!', category='success')
     return redirect(url_for('views.project', project_id=current_entry.project_id))
+
+def send_mail():
+    pass
+
+@views.route('/reset_password', methods=['GET', 'POST'])
+def reset_password():
+    form = ResetRequestForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            send_mail()
+            flash('Reset request has been sent. Check you email.', category='success')
+            return redirect(url_for('auth.login'))
+    return render_template('reset_request.html', form=form)

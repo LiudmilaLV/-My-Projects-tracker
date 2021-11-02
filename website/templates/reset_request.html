@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% block title %}Login{% endblock %}
+{% block title %}Reset Password{% endblock %}
 {% block content %}
 <div class="container my-3 col-md-4 center" >
     <form method="POST" action="">
         {{ form.hidden_tag() }}
         <fieldset class="form-group">
-            <legend>Login</legend>
+            <legend>Reset Password</legend>
             <div class="form-group">
                 {{ form.email.label(class="form-label mt-4") }}
                 {% if form.email.errors %}
@@ -19,31 +19,11 @@
                     {{ form.email(class="form-control") }}
                 {% endif %}
             </div>
-            <div class="form-group">
-                {{ form.password.label(class="form-label mt-4") }}
-                {% if form.password.errors %}
-                    {{ form.password(class="form-control is-invalid") }}
-                    <div class="invalid-feedback">
-                        {% for error in form.password.errors %}
-                            <span>{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    {{ form.password(class="form-control") }}
-                {% endif %}           
-            </div>
-            <div class="form-check">
-                {{ form.remember(class="form-check-input") }}
-                {{ form.remember.label(class="form-check-label") }}
-            </div>
         </fieldset>
         <br>
         <div class="form-group">
             {{ form.submit(class="btn btn-primary") }}
         </div>
-        <small class="text-muted ml-2">
-            <a href="{{ url_for('views.reset_password') }}">Forgot password?</a>
-        </small>
     </form>
     <br>
     <div class="border-top pt-3">
