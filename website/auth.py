@@ -1,4 +1,4 @@
-from flask import Flask, Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, flash, redirect, url_for
 from werkzeug.utils import redirect
 from .models import User
 from . import db, bcrypt

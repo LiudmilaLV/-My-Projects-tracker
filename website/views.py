@@ -2,9 +2,10 @@ from flask import Blueprint, render_template, flash, abort, url_for
 from werkzeug.utils import redirect
 from flask_login import login_required, current_user
 from .models import User, Project, Entry
-from . import db
-from .forms import AddProjectForm, EditProjectForm, EntryForm, ResetRequestForm
+from . import db, mail, bcrypt
+from .forms import AddProjectForm, EditProjectForm, EntryForm, ResetRequestForm, ResetPasswordForm
 from sqlalchemy import and_
+from flask_mail import Message
 
 views = Blueprint('views', __name__)
 
@@ -77,16 +78,42 @@ def delete_entry(entry_id):
     flash(f'{current_entry.duration} minutes has been deleted!', category='success')
     return redirect(url_for('views.project', project_id=current_entry.project_id))
 
-def send_mail():
-    pass
+def send_reset_mail(user):
+    token = user.get_token()
+    msg = Message('Password Reset Request', sender='yourprojecttracker@gmail.com', recipients=[user.email])
+    msg.body = f'''To reset your password, visit the following link:
+{url_for('views.reset_token', token=token, _external=True)}
+    
+If you did not make this password reset request, please ignore this email.
+'''
+    mail.send(msg)
 
 @views.route('/reset_password', methods=['GET', 'POST'])
-def reset_password():
+def reset_request():
+    if current_user.is_authenticated:
+        return redirect(url_for('views.home'))
     form = ResetRequestForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user:
-            send_mail()
-            flash('Reset request has been sent. Check you email.', category='success')
+            send_reset_mail(user)
+            flash('Reset request has been sent. Check you email.', category='info')
             return redirect(url_for('auth.login'))
     return render_template('reset_request.html', form=form)
+
+@views.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_token(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('views.home'))
+    user = User.verify_token(token)
+    if user is None:
+        flash('The reset password link is expired', category='warning')
+        return redirect(url_for('views.reset_request'))
+    form=ResetPasswordForm()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user.password = hashed_password
+        db.session.commit()
+        flash('Password has been updated! You are now able to log in.', category='success')
+        return redirect(url_for('auth.login'))
+    return render_template('change_password.html', form=form)

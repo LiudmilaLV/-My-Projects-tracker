@@ -1,13 +1,16 @@
+import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from os import path
 from flask_login import LoginManager
+from flask_mail import Mail
 
 db = SQLAlchemy()
 DB_NAME = "database.db"
 
 bcrypt =Bcrypt()
+mail = Mail()
 
 def create_app():
     app = Flask(__name__)
@@ -29,6 +32,13 @@ def create_app():
     login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
     login_manager.login_message_category = "info"
+    app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+    app.config['MAIL_PORT'] = 587 
+    app.config['MAIL_USE_TLS'] = True
+    app.config['MAIL_USERNAME'] = os.environ.get('EMAIL_USER')
+    app.config['MAIL_PASSWORD'] = os.environ.get('EMAIL_PASS')
+    
+    mail = Mail(app)
     
     @login_manager.user_loader
     def load_user(id):
