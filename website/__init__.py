@@ -16,6 +16,7 @@ def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = '18d1724277f006e116623f1bc2297dea'
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
     
     from .views import views
@@ -51,6 +52,5 @@ def create_database(app):
     print(path.exists('website/' + DB_NAME))
     if not path.exists('website/' + DB_NAME):
         db.create_all(app=app)
-        print('Created Database!')
 
     

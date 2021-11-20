@@ -32,13 +32,18 @@
                                 </div>
                             {% endfor %}
                     </div>
-                    <div class="col-md-6 text-center">
-                        <div class="display-5">Your progress this month:</div>
-                        <div class="display-6 text-muted">Here is a pie chart</div>
-                        <!-- Pie chart ? -->
-                    </div>   
+                    <!-- Pie Chart -->
+                    <div class="col-xs-10 col-sm-6 col-md-5">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="chart">
+                                    <canvas id="projects_pie"></canvas>
+                                </div>
+                            </div>    
+                        </div>
+                    </div>
                 </div>
-                <div class="m-5"><a href="#addproject" class="btn btn-lg btn-primary my-5">Add a new project  to track</a></div>
+                <div class="m-5"><a href="#addproject" class="btn btn-lg btn-primary my-5">Add a new project to track</a></div>
             {% endif %}
         </div>
     </section>
@@ -83,5 +88,33 @@
             </form>
         </div>
     </section>
+{% block javascript %}
+<script>
+    let u_p_labels = JSON.parse({{ user_projects_labels | tojson }})
+    let u_p_data = JSON.parse('{{ user_projects_data }}')
 
+    const data = {
+    labels: u_p_labels,
+    datasets: [{
+    label: 'My First Dataset',
+    data: u_p_data,
+    backgroundColor: [
+        'rgb(117, 189, 187)',
+        'rgb(110, 79, 135)',
+        'rgb(189, 117, 120)',
+        'rgb(98, 113, 162)',
+        'rgb(162, 98, 146)'
+    ],
+    hoverOffset: 10
+    }]
+    };
+    const config = {
+        type: 'pie',
+        data: data,
+        };
+
+    const projects_pie_chart = new Chart(document.getElementById('projects_pie'), config);
+
+</script>
+{% endblock %}
 {% endblock %}

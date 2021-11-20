@@ -6,12 +6,31 @@ from . import db, mail, bcrypt
 from .forms import AddProjectForm, EditProjectForm, EntryForm, ResetRequestForm, ResetPasswordForm
 from sqlalchemy import and_
 from flask_mail import Message
+import json
+from datetime import datetime, timedelta
 
 views = Blueprint('views', __name__)
 
 @views.route('/', methods=['GET', 'POST']) 
 @login_required
 def home():
+    current_day = datetime.now().date()
+    a_month_ago = current_day - timedelta(days=30)
+    recent_projects = (db.session.query(Project.project_name, db.func.sum(Entry.duration))
+                        .join(Entry)
+                        .filter(and_(Project.owner==current_user, Entry.date.between(a_month_ago, current_day)))
+                        .group_by(Project.project_name)
+                        .all()
+                        )
+    user_projects_labels = []
+    user_projects_data = []
+    for project_name, project_duration in recent_projects:
+        user_projects_labels.append(project_name)
+        user_projects_data.append(project_duration)
+        
+    user_projects_labels = json.dumps(user_projects_labels)
+    user_projects_data = json.dumps(user_projects_data)
+    
     project_form = AddProjectForm()
     if project_form.validate_on_submit():    
         user = Project.query.filter(Project.project_name==project_form.project_name.data, Project.user_id==current_user.id).first()
@@ -22,7 +41,7 @@ def home():
             db.session.add(new_project)
             db.session.commit()
             flash('Project added!', category='success')
-    return render_template("home.html", user=current_user, project_form=project_form)
+    return render_template("home.html", user=current_user, project_form=project_form, user_projects_labels=user_projects_labels, user_projects_data=user_projects_data)
 
 @views.route('project/<int:project_id>', methods=['GET', 'POST'])
 @login_required
