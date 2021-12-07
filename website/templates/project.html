@@ -5,183 +5,213 @@
 
 {% block content %}
     <section class="container" id="greet">
-        <div class="container">
-            <div class="display-6" style="text-align: center;">{{ name }}</div>
-            <div style="text-align: center;"> {{ notes }} </div>
-            <div class="container my-3">
-                <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <div class="container col-md-8">
+            <div class="text-center">
+                <h1>{{ name }}</h1>
+                <h4>{{ notes }}</h4>
+            </div>
+                <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="pills-stats-tab" data-bs-toggle="pill" data-bs-target="#pills-stats" type="button" role="tab" aria-controls="pills-stats" aria-selected="true">Stats</button>
+                        <button class="nav-link active" id="pills-this-week-tab" data-bs-toggle="pill" data-bs-target="#pills-this-week" type="button" role="tab" aria-controls="pills-this-week" aria-selected="true">This Week</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="pills-addtime-tab" data-bs-toggle="pill" data-bs-target="#pills-addtime" type="button" role="tab" aria-controls="pills-addtime" aria-selected="false">Add Time</button>
+                        <button class="nav-link" id="pills-last30-tab" data-bs-toggle="pill" data-bs-target="#pills-last30" type="button" role="tab" aria-controls="pills-last30" aria-selected="false">Last 30 Days</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="pills-timer-tab" data-bs-toggle="pill" data-bs-target="#pills-timer" type="button" role="tab" aria-controls="pills-timer" aria-selected="false">Use Timer</button>
+                        <button class="nav-link" id="pills-this-quarter-tab" data-bs-toggle="pill" data-bs-target="#pills-this-quarter" type="button" role="tab" aria-controls="pills-this-quarter" aria-selected="true">This Quarter</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="more-tab" data-bs-toggle="pill" data-bs-target="#pills-more" type="button" role="tab" aria-controls="pills-more" aria-selected="false">More Actions</button>
+                        <button class="nav-link" id="pills-this-year-tab" data-bs-toggle="pill" data-bs-target="#pills-this-year" type="button" role="tab" aria-controls="pills-this-year" aria-selected="false">This Year</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pills-alltime-tab" data-bs-toggle="pill" data-bs-target="#pills-alltime" type="button" role="tab" aria-controls="pills-alltime" aria-selected="false">All Time</button>
                     </li>
                 </ul>
-                <div class="tab-content my-3" id="myTabContent">
-                    <div class="tab-pane fade show active" id="pills-stats" role="tabpanel" aria-labelledby="pills-stats-tab">
-                        <div class="d-flex my-3 align-items-start">
-                            <div class="nav flex-column nav-pills me-3" id="stats-pills-tab" role="tablist" aria-orientation="vertical">
-                                <button class="nav-link active" id="stats-pills-week-tab" data-bs-toggle="pill" data-bs-target="#stats-pills-week" type="button" role="tab" aria-controls="stats-pills-week" aria-selected="true">This week</button>
-                                <button class="nav-link" id="stats-pills-month-tab" data-bs-toggle="pill" data-bs-target="#stats-pills-month" type="button" role="tab" aria-controls="stats-pills-month" aria-selected="false">This month</button>
-                                <button class="nav-link" id="stats-pills-year-tab" data-bs-toggle="pill" data-bs-target="#stats-pills-year" type="button" role="tab" aria-controls="stats-pills-year" aria-selected="false">This year</button>
-                                <button class="nav-link" id="stats-pills-alltime-tab" data-bs-toggle="pill" data-bs-target="#stats-pills-alltime" type="button" role="tab" aria-controls="stats-pills-alltime" aria-selected="false">All Time</button>
-                            </div>
-                            <div class="tab-content my-3" id="stats-pills-tabContent">
-                                <div class="tab-pane fade show active" id="stats-pills-week" role="tabpanel" aria-labelledby="stats-pills-week-tab">This week stats</div>
-                                <div class="tab-pane fade" id="stats-pills-month" role="tabpanel" aria-labelledby="stats-pills-month-tab">This month stats</div>
-                                <div class="tab-pane fade" id="stats-pills-year" role="tabpanel" aria-labelledby="stats-pills-year-tab">This year stats</div>
-                                <div class="tab-pane fade" id="stats-pills-alltime" role="tabpanel" aria-labelledby="stats-pills-alltime-tab">All time stats</div>
-                            </div>
+                <div class="tab-content" id="pills-tabContent">
+                    <div class="tab-pane fade show active" id="pills-this-week" role="tabpanel" aria-labelledby="pills-this-week-tab">
+                        <p>This week you've spent <b>{{ thisweek_summ_hours }} hours</b> on this project.</p>
+                        <!-- This week chart -->
+                        <div class="card my-3">
+                            <div class="card-body">
+                                <div class="chart">
+                                    <canvas id="this_week_chart"></canvas>
+                                </div>
+                            </div>    
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="pills-addtime" role="tabpanel" aria-labelledby="pills-addtime-tab">
-                        <div class="container my-2">
-                            <form method="POST" action="">
-                                {{ entry_form.hidden_tag() }}
-                                <fieldset class="form-group">
-                                    <!-- <legend>Add Time to the Project</legend> -->
-                                    <div class="form-group">
-                                        {{ entry_form.date.label(class="form-label mt-4") }}
-                                        {% if entry_form.date.errors %}
-                                            {{ entry_form.date(class="form-control is-invalid") }}
-                                            <div class="invalid-feedback">
-                                                {% for error in entry_form.date.errors %}
-                                                    <span>{{ error }}</span>
-                                                {% endfor %}
-                                            </div>
-                                        {% else %}
-                                            {{ entry_form.date(class="form-control") }}
-                                        {% endif %} 
-                                    </div>
-                                    <div class="form-group">
-                                        {{ entry_form.duration.label(class="form-label mt-4") }}
-                                        {% if entry_form.duration.errors %}
-                                            {{ entry_form.duration(class="form-control is-invalid") }}
-                                            <div class="invalid-feedback">
-                                                {% for error in entry_form.duration.errors %}
-                                                    <span>{{ error }}</span>
-                                                {% endfor %}
-                                            </div>
-                                        {% else %}
-                                            {{ entry_form.duration(class="form-control") }}
-                                        {% endif %}
-                                    </div>
-                                </fieldset>
-                                <br>
-                                <div class="form-group">
-                                    {{ entry_form.submit(class="btn btn-primary") }}
+                    <div class="tab-pane fade" id="pills-last30" role="tabpanel" aria-labelledby="pills-last30-tab">
+                        <p>This month you've spent <b>{{ thismonth_summ_hours }} hours</b> on this project.</p>
+                        <!-- Last 30 Days chart -->
+                        <div class="card my-3">
+                            <div class="card-body">
+                                <div class="chart">
+                                    <canvas id="last30_chart"></canvas>
                                 </div>
-                            </form>
+                            </div>    
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="pills-timer" role="tabpanel" aria-labelledby="pills-timer-tab">Use timer</div>
-                    <div class="tab-pane fade" id="pills-more" role="tabpanel" aria-labelledby="more-tab">
-                        <div class="container my-2">
-                            <div class="d-flex align-items-start">
-                                <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                                    <button class="nav-link active" id="v-pills-edit-tab" data-bs-toggle="pill" data-bs-target="#v-pills-edit" type="button" role="tab" aria-controls="v-pills-edit" aria-selected="true">Edit Project</button>
-                                    <button class="nav-link" id="v-pills-10last-tab" data-bs-toggle="pill" data-bs-target="#v-pills-10last" type="button" role="tab" aria-controls="v-pills-10last" aria-selected="false">10 Last Entries</button>
-                                    <button class="nav-link" id="v-pills-settings-tab" data-bs-toggle="pill" data-bs-target="#v-pills-settings" type="button" role="tab" aria-controls="v-pills-settings" aria-selected="false">what else?</button>
+                    <div class="tab-pane fade" id="pills-this-quarter" role="tabpanel" aria-labelledby="pills-this-quarter-tab">
+                        <p>This quarter you've spent <b>{{ thisquarter_summ_hours }} hours</b> on this project.</p>
+                        <!-- This Quarter chart -->
+                        <div class="card my-3">
+                            <div class="card-body">
+                                <div class="chart">
+                                    <canvas id="this_quarter_chart"></canvas>
                                 </div>
-                                <div class="tab-content" id="v-pills-tabContent">
-                                    <div class="tab-pane fade show active" id="v-pills-edit" role="tabpanel" aria-labelledby="v-pills-edit-tab">
-                                        <div class="container"> 
-                                            <div class="container mx-5">
-                                                <form action="{{ url_for('views.edit_project', project_id=project_id) }}" method="POST">
-                                                    {{ edit_project_form.hidden_tag() }}
-                                                    <fieldset class="form-group">
-                                                        <div class="form-group">
-                                                            {{ edit_project_form.project_name.label(class="form-label mt-4") }}
-                                                            {% if edit_project_form.project_name.errors %}
-                                                                {{ edit_project_form.project_name(class="form-control is-invalid") }}
-                                                                <div class="invalid-feedback">
-                                                                    {% for error in edit_project_form.project_name.errors %}
-                                                                        <span>{{ error }}</span>
-                                                                    {% endfor %}
-                                                                </div>
-                                                            {% else %}
-                                                                {{ edit_project_form.project_name(class="form-control") }}
-                                                            {% endif %} 
-                                                        </div>
-                                                        <div class="form-group">
-                                                            {{ edit_project_form.notes.label(class="form-label mt-4") }}
-                                                            {% if edit_project_form.notes.errors %}
-                                                                {{ edit_project_form.notes(class="form-control is-invalid") }}
-                                                                <div class="invalid-feedback">
-                                                                    {% for error in edit_project_form.notes.errors %}
-                                                                        <span>{{ error }}</span>
-                                                                    {% endfor %}
-                                                                </div>
-                                                            {% else %}
-                                                                {{ edit_project_form.notes(class="form-control") }}
-                                                            {% endif %}
-                                                        </div>
-                                                    </fieldset>
-                                                    <br>
-                                                    <div class="form-group">
-                                                        {{ edit_project_form.submit(class="btn btn-primary") }}
-                                                    </div>
-                                                </form>
-                                            </div>
-                                            <div>
-                                                <button type="button" class="btn btn-danger btn-lg my-5 mx-5"  data-bs-toggle="modal" data-bs-target="#deleteProjectModal" >Delete Project</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="tab-pane fade" id="v-pills-10last" role="tabpanel" aria-labelledby="v-pills-10last-tab">
-                                        <table class="table table-hover my-3 mx-5" style="text-align: center;">
-                                            <thead>
-                                                <tr class="table-light">
-                                                    <th scope="col"></th>
-                                                    <th scope="col">Date</th>
-                                                    <th scope="col">Minutes Spent</th>
-                                                    <th scope="col"></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {% for entry in last10 %}
-                                                <tr>
-                                                    <th scope="row">{{ loop.index }}</th>
-                                                    <td>{{ entry.date.strftime("%d-%m-%Y") }}</td>
-                                                    <td>{{ entry.duration }}</td>
-                                                    <td><a href="{{ url_for('views.delete_entry', entry_id=entry.id) }}" class="btn btn-outline-danger btn-sm">Delete</a></td>
-                                                </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    <div class="tab-pane fade" id="v-pills-settings" role="tabpanel" aria-labelledby="v-pills-settings-tab">...</div>
-                                </div>
-                            </div>
+                            </div>    
                         </div>
                     </div>
-                </div>
-            </div>
+                    <div class="tab-pane fade" id="pills-this-year" role="tabpanel" aria-labelledby="pills-this-year-tab">
+                        <p>This year you've spent <b>{{ thisyear_summ_hours }} hours</b> on this project.</p>
+                        <!-- This Year chart -->
+                        <div class="card my-3">
+                            <div class="card-body">
+                                <div class="chart">
+                                    <canvas id="this_year_chart"></canvas>
+                                </div>
+                            </div>    
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="pills-alltime" role="tabpanel" aria-labelledby="pills-alltime-tab">
+                        <p>You've spent <b>{{ alltime_summ_hours }} hours</b> on this project.</p>
+                        <!-- All Time chart -->
+                        <div class="card my-3">
+                            <div class="card-body">
+                                <div class="chart">
+                                    <canvas id="alltime_chart"></canvas>
+                                </div>
+                            </div>    
+                        </div>
+                    </div>
+                </div>         
         </div>
-    </section>
-    <!-- Modal for Deleting a Project -->
-    <div class="modal fade" id="deleteProjectModal" tabindex="-1" aria-labelledby="deleteProjectModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteProjectModalLabel">Delete this Project?</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <form action="{{ url_for('views.delete_project', project_id=project_id) }}" method="POST">
-                    <input class="btn btn-danger" type="submit" value="Delete">
-                </form>
-            </div>
-        </div>
-        </div>
-    </div>
+</section>
 
-    <!-- Modal for Deleting an Entry -->
-    
+        <!-- 5 last entries -->
+        <div class="container my-3 col-md-8">
+            <h5>Last 5 Entries</h5>
+        <table class="table table-hover">
+            <thead>
+                <tr class="table-light">
+                    <th scope="col"></th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Minutes Spent</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in last5 %}
+                <tr>
+                    <th scope="row">{{ loop.index }}</th>
+                    <td>{{ entry.date.strftime("%d-%m-%Y") }}</td>
+                    <td>{{ entry.duration }}</td>
+                    <td><a href="{{ url_for('views.delete_entry', entry_id=entry.id) }}" class="btn btn-outline-danger btn-sm">Delete</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+
+
+
+{% block javascript %}
+<script>
+
+    let t_w_data = JSON.parse({{ this_week_data | tojson }})
+    let t_w_labels = JSON.parse({{ this_week_labels | tojson }})
+    let l30_data = JSON.parse({{ this_month_data | tojson }})
+    let l30_labels = JSON.parse({{ this_month_labels | tojson }})
+    let quarter_data = JSON.parse({{ this_quarter_data | tojson }})
+    let quarter_labels = JSON.parse({{ this_quarter_labels | tojson }})
+    let year_data = JSON.parse({{ this_year_data | tojson }})
+    let year_labels = JSON.parse({{ this_year_labels | tojson }})
+    let all_data = JSON.parse({{ alltime_data | tojson }})
+    let all_labels = JSON.parse({{ alltime_labels | tojson }})
+
+    // This week chart
+    const tw_data = {
+        labels: t_w_labels,
+        datasets: [{
+            label: 'Minutes',
+            data: t_w_data,
+            fill: false,
+            borderColor: 'rgb(44, 62, 80)',
+            tension: 0.1
+        }]
+    };
+    const tw_config = {
+        type: 'line',
+        data: tw_data,
+};
+    const this_week_chart = new Chart(document.getElementById('this_week_chart'), tw_config);
+
+    // Last 30 days chart
+    const last30_data = {
+        labels: l30_labels,
+        datasets: [{
+            label: 'Hours',
+            data: l30_data,
+            fill: false,
+            backgroundColor: 'rgb(117, 189, 187)',
+            tension: 0.1
+        }]
+    };
+    const l30_config = {
+        type: 'bar',
+        data: last30_data,
+};
+    const this_month_chart = new Chart(document.getElementById('last30_chart'), l30_config);
+
+    // This quarter chart
+    const tq_data = {
+        labels: quarter_labels,
+        datasets: [{
+            label: 'Hours',
+            data: quarter_data,
+            fill: false,
+            backgroundColor: 'rgb(117, 189, 187)',
+            tension: 0.1
+        }]
+    };
+    const tq_config = {
+        type: 'bar',
+        data: tq_data,
+};
+    const this_quarter_chart = new Chart(document.getElementById('this_quarter_chart'), tq_config);
+
+    // This year chart
+    const ty_data = {
+        labels: year_labels,
+        datasets: [{
+            label: 'Hours',
+            data: year_data,
+            fill: false,
+            backgroundColor: 'rgb(117, 189, 187)',
+            tension: 0.1
+        }]
+    };
+    const ty_config = {
+        type: 'bar',
+        data: ty_data,
+};
+    const this_year_chart = new Chart(document.getElementById('this_year_chart'), ty_config);
+
+    // All time chart
+    const all_t_data = {
+        labels: all_labels,
+        datasets: [{
+            label: 'Hours',
+            data: all_data,
+            fill: false,
+            backgroundColor: 'rgb(117, 189, 187)',
+            tension: 0.1
+        }]
+    };
+    const all_t_config = {
+        type: 'bar',
+        data: all_t_data,
+};
+    const alltime_chart = new Chart(document.getElementById('alltime_chart'), all_t_config);
+</script>
+{% endblock %}
 {% endblock %}

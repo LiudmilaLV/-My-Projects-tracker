@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Add Time to Project{% endblock %}
+{% block content %}
+<div class="container my-3 col-md-4 center">
+    <form method="POST" action="">
+        {{ entry_form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend>Add Time in Minutes</legend>
+            <div class="form-group">
+                {{ entry_form.date.label(class="form-label mt-4") }}
+                {% if entry_form.date.errors %}
+                    {{ entry_form.date(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in entry_form.date.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ entry_form.date(class="form-control") }}
+                {% endif %} 
+            </div>
+            <div class="form-group">
+                {{ entry_form.duration.label(class="form-label mt-4") }}
+                {% if entry_form.duration.errors %}
+                    {{ entry_form.duration(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in entry_form.duration.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ entry_form.duration(class="form-control") }}
+                {% endif %}
+            </div>
+        </fieldset>
+        <br>
+        <div class="form-group">
+            {{ entry_form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

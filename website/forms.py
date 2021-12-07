@@ -42,8 +42,8 @@ class EntryForm(FlaskForm):
     submit = SubmitField('Add Time to the Project')    
 
 class EditProjectForm(FlaskForm):
-    project_name = StringField('New Project Name', validators=[DataRequired(), Length(min=1, max=30)])
-    notes = StringField('Notes (optional)')
+    project_name = StringField('Edit Project Name', validators=[DataRequired(), Length(min=1, max=30)])
+    notes = StringField('Edit Notes (optional)')
     submit = SubmitField('Submit Changes')
     
 class ResetRequestForm(FlaskForm):

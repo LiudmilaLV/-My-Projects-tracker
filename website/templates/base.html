@@ -24,6 +24,14 @@
           <div class="collapse navbar-collapse justify-content-end align-center" id="navbarColor01">
             <ul class="navbar-nav">
               {% if user and user.is_authenticated %}
+                {% if project_id %}
+                  <li class="nav-item">
+                    <a class="nav-link fw-lighter" href="{{ url_for('views.add_time', project_id=project_id) }}">Add Time</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link fw-lighter" href="{{ url_for('views.edit_project', project_id=project_id) }}">Edit Project</a>
+                  </li>
+                {% endif %}
                 <li class="nav-item">
                   <a class="nav-link active fw-lighter" href="{{ url_for('views.home') }}">Home
                     <span class="visually-hidden">(current)</span>

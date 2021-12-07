@@ -6,8 +6,3 @@ section {
     height: 100vh;
     padding: 5vh 10vh;
 }
-
-#leftgreet {
-    justify-content: space-around;
-    align-content: space-around;
-}

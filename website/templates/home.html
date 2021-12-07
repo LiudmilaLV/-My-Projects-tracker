@@ -21,9 +21,9 @@
             <!-- If User has projects -->
             <div class="container-lg my-3">
                 <div class="row justify-content-around">
-                    <div class="col-md-6 text-center text-md-start d-flex align-content-center flex-wrap" id="leftgreet">
-                        <div class="display-3">Hi, {{user.name}}!</div>
-                        <div class="display-6 text-muted">Your projects:</div>
+                    <div class="col-md-5 align-content-around justify-content-around">
+                        <div class="display-2">Hi, {{user.name}}!</div>
+                        <div class="display-6">Your current projects:</div>
                             {% for project in user.projects %}
                                 <div class="btn mb-2">
                                     <a href="{{ url_for('views.project', project_id=project.id) }}">
@@ -93,10 +93,9 @@
     let u_p_labels = JSON.parse({{ user_projects_labels | tojson }})
     let u_p_data = JSON.parse('{{ user_projects_data }}')
 
-    const data = {
+    const pie_data = {
     labels: u_p_labels,
     datasets: [{
-    label: 'My First Dataset',
     data: u_p_data,
     backgroundColor: [
         'rgb(117, 189, 187)',
@@ -108,12 +107,12 @@
     hoverOffset: 10
     }]
     };
-    const config = {
+    const pie_config = {
         type: 'pie',
-        data: data,
+        data: pie_data,
         };
 
-    const projects_pie_chart = new Chart(document.getElementById('projects_pie'), config);
+    const projects_pie_chart = new Chart(document.getElementById('projects_pie'), pie_config);
 
 </script>
 {% endblock %}
