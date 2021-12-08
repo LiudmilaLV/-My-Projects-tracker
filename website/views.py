@@ -216,6 +216,18 @@ def delete_project(project_id):
     flash(f'Project "{current_project.project_name} has been deleted!', category='success')
     return redirect(url_for('views.home'))
 
+@views.route('project/delete/<int:entry_id>', methods=['POST'])
+@login_required
+def delete_entry(entry_id):
+    current_entry = Entry.query.join(Project).filter(and_(Entry.id==entry_id, Project.owner==current_user)).first_or_404(entry_id)
+    db.session.delete(current_entry)
+    db.session.commit()
+    plural = ''
+    if current_entry.duration != 1:
+            plural = 's'
+    flash(f'{current_entry.duration} minute{plural} has been deleted!', category='success')
+    return redirect(url_for('views.project', project_id=current_entry.project_id))
+
 @views.route('project/<int:project_id>/addtime', methods=['GET','POST'])
 @login_required
 def add_time(project_id):
@@ -227,10 +239,12 @@ def add_time(project_id):
         new_entry = Entry(date=entry_form.date.data, duration=entry_form.duration.data, project_id=current_project.id)
         db.session.add(new_entry)
         db.session.commit()
-        flash(f'{entry_form.duration.data} minutes added to the project!', category='success')
+        plural = ''
+        if entry_form.duration.data != 1:
+            plural = 's'
+        flash(f'{entry_form.duration.data} minute{plural} added to the project!', category='success')
         return redirect(url_for('views.project', project_id=current_project.id))
     return render_template('addtime.html', user = current_user, project_id=current_project.id, entry_form=entry_form)
-
 
 @views.route('project/<int:project_id>/edit', methods=['GET','POST'])
 @login_required
@@ -249,15 +263,6 @@ def edit_project(project_id):
         edit_project_form.project_name.data = current_project.project_name
         edit_project_form.notes.data = current_project.notes
     return render_template('edit_project.html', user = current_user, project_id=current_project.id, edit_project_form=edit_project_form)
-    
-@views.route('project/delete/<int:entry_id>')
-@login_required
-def delete_entry(entry_id):
-    current_entry = Entry.query.join(Project).filter(and_(Entry.id==entry_id, Project.owner==current_user)).first_or_404(entry_id)
-    db.session.delete(current_entry)
-    db.session.commit()
-    flash(f'{current_entry.duration} minutes has been deleted!', category='success')
-    return redirect(url_for('views.project', project_id=current_entry.project_id))
 
 def send_reset_mail(user):
     token = user.get_token()

@@ -53,8 +53,11 @@
                 <h5 class="modal-title" id="deleteProjectModalLabel">Delete this Project?</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+            <div class="modal-body">
+                <p>All data relevant to this project will be gone.</p>
+            </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <form action="{{ url_for('views.delete_project', project_id=project_id) }}" method="POST">
                     <input class="btn btn-danger" type="submit" value="Delete">
                 </form>

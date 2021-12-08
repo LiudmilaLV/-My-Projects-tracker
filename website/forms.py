@@ -4,6 +4,7 @@ from wtforms.fields.core import IntegerField
 from wtforms.fields.html5 import DateField
 from wtforms.fields.simple import HiddenField, PasswordField
 from wtforms.validators import DataRequired, EqualTo, Length, Email, ValidationError, NumberRange
+from datetime import datetime
 from .models import User
 from . import db
 
@@ -33,13 +34,13 @@ class LoginForm(FlaskForm):
 class AddProjectForm(FlaskForm):
     project_name = StringField('Project Name', validators=[DataRequired(), Length(min=1, max=30)])
     notes = StringField('Notes')
-    submit = SubmitField('Add Project')
+    submit = SubmitField('Add New Project')
     
 class EntryForm(FlaskForm):
-    date = DateField('Date')
-    duration = IntegerField('Duration (in minutes)', validators=[DataRequired(), NumberRange(min=1, max=None, message='Enter atleast 1 minute')])
+    date = DateField('Date', format='%Y-%m-%d', default=datetime.today)
+    duration = IntegerField('Duration (at least 1 minute)', default=1,validators=[DataRequired(), NumberRange(min=1, max=None, message='Enter atleast 1 minute')])
     project = HiddenField(default="{{ current_project.id }}")
-    submit = SubmitField('Add Time to the Project')    
+    submit = SubmitField('Add Time to the Project')
 
 class EditProjectForm(FlaskForm):
     project_name = StringField('Edit Project Name', validators=[DataRequired(), Length(min=1, max=30)])

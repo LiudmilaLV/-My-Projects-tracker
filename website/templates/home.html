@@ -20,7 +20,7 @@
             {% else %} 
             <!-- If User has projects -->
             <div class="container-lg my-3">
-                <div class="row justify-content-around">
+                <div class="row d-flex flex-wrap justify-content-evenly">
                     <div class="col-md-5 align-content-around justify-content-around">
                         <div class="display-2">Hi, {{user.name}}!</div>
                         <div class="display-6">Your current projects:</div>
@@ -43,17 +43,16 @@
                         </div>
                     </div>
                 </div>
-                <div class="m-5"><a href="#addproject" class="btn btn-lg btn-primary my-5">Add a new project to track</a></div>
             {% endif %}
         </div>
     </section>
 
-    <section id="addproject">
-        <div class="container-lg my-3">
+    <section id="addproject" class="d-flex flex-wrap">
+        <div class="container my-3 col-md-6">
             <form method="POST" action="#">
                 {{ project_form.hidden_tag() }}
                 <fieldset class="form-group">
-                    <legend>Add a New Project</legend>
+                    <!-- <legend>Add a New Project</legend> -->
                     <div class="form-group">
                         {{ project_form.project_name.label(class="form-label mt-4") }}
                         {% if project_form.project_name.errors %}
