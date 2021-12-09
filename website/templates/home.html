@@ -1,92 +1,85 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block content %}
-    <section class="container-lg my-1" id="greet">
-        <div class="container-lg my-3">
-            {% if not user.projects %}
-            <!-- If User does'n have any projects-->
-                <div class="row justify-content-around">
-                    <div class="col-4 text-center">
-                        <div class="display-3">Hi, {{user.name}}!</div>
-                        <div class="display-6 text-muted">No projects yet?</div>
-                    </div>
-                    <div class="col-8 text-center">
-                        <div class="display-3">Welcome to the Project Tracker!</div>
-                        <!-- <div class="display-6 text-muted">Here is how it works:</div>
-                        Carousel ? -->
-                    </div>
-                </div>
-                <div class="m-5"><a href="#addproject" class="btn btn-lg btn-primary my-5">Add a new project to track</a></div>
-            {% else %} 
-            <!-- If User has projects -->
-            <div class="container-lg my-3">
-                <div class="row d-flex flex-wrap justify-content-evenly">
-                    <div class="col-md-5 align-content-around justify-content-around">
-                        <div class="display-2">Hi, {{user.name}}!</div>
-                        <div class="display-6">Your current projects:</div>
-                            {% for project in user.projects %}
-                                <div class="btn mb-2">
-                                    <a href="{{ url_for('views.project', project_id=project.id) }}">
-                                        {{project.project_name}}
-                                    </a>
-                                </div>
-                            {% endfor %}
-                    </div>
-                    <!-- Pie Chart -->
-                    <div class="col-xs-10 col-sm-6 col-md-5">
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                <div class="chart">
-                                    <canvas id="projects_pie"></canvas>
-                                </div>
-                            </div>    
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
+<section class="container">        
+    {% if not user.projects %}
+    <!-- If User does'n have any projects-->
+    <div class="row d-flex flex-wrap justify-content-evenly">
+        <div class="col-md-5 my-5">
+            <h1>Hi, {{user.name}}!</h1>
+            <h4>No projects yet?</h4>
         </div>
-    </section>
+        <div class="col-md-5 my-5">
+            <h3>Welcome to the Project Tracker!</h3>
+            <h6>A simple tool to measure time you spend on your projects and track your progress with infographics.</h6>
+        </div>
+    </div>
+    {% else %} 
+    <!-- If User has projects -->
+    <div class="row d-flex flex-wrap justify-content-evenly">
+        <div class="col-md-5">
+            <div class="display-1">Hi, {{user.name}}!</div>
+            <h2 class="mt-5">Your projects:</h2>
+            <div class="d-flex flex-wrap justify-content-between">
+                {% for project in user.projects %}
+                <div class="btn mb-2 btn-outline-primary btn-lg">
+                    <a href="{{ url_for('views.project', project_id=project.id) }}">
+                        {{project.project_name}}
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="my-3 col-md-5">
+            <h4 class="text-center">Last 30 Days Progress:</h4>
+            <!-- Pie Chart -->
+            <div class="chart my-3">
+                <canvas id="projects_pie"></canvas>
+            </div>
+        </div>
+    {% endif %}
+    
 
-    <section id="addproject" class="d-flex flex-wrap">
-        <div class="container my-3 col-md-6">
-            <form method="POST" action="#">
-                {{ project_form.hidden_tag() }}
-                <fieldset class="form-group">
-                    <!-- <legend>Add a New Project</legend> -->
-                    <div class="form-group">
-                        {{ project_form.project_name.label(class="form-label mt-4") }}
-                        {% if project_form.project_name.errors %}
-                            {{ project_form.project_name(class="form-control is-invalid") }}
-                            <div class="invalid-feedback">
-                                {% for error in project_form.project_name.errors %}
-                                    <span>{{ error }}</span>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            {{ project_form.project_name(class="form-control") }}
-                        {% endif %} 
-                    </div>
-                    <div class="form-group">
-                        {{ project_form.notes.label(class="form-label mt-4") }}
-                        {% if project_form.notes.errors %}
-                            {{ project_form.notes(class="form-control is-invalid") }}
-                            <div class="invalid-feedback">
-                                {% for error in project_form.notes.errors %}
-                                    <span>{{ error }}</span>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            {{ project_form.notes(class="form-control") }}
-                        {% endif %}
-                    </div>
-                </fieldset>
-                <br>
+
+    <div class="container my-3 col-md-6" id="addproject">
+        <form method="POST" action="#">
+            {{ project_form.hidden_tag() }}
+            <fieldset class="form-group">
+                <!-- <legend>Add a New Project</legend> -->
                 <div class="form-group">
-                    {{ project_form.submit(class="btn btn-primary") }}
+                    {{ project_form.project_name.label(class="form-label mt-4") }}
+                    {% if project_form.project_name.errors %}
+                        {{ project_form.project_name(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in project_form.project_name.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ project_form.project_name(class="form-control") }}
+                    {% endif %} 
                 </div>
-            </form>
-        </div>
-    </section>
+                <div class="form-group">
+                    {{ project_form.notes.label(class="form-label mt-4") }}
+                    {% if project_form.notes.errors %}
+                        {{ project_form.notes(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in project_form.notes.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ project_form.notes(class="form-control") }}
+                    {% endif %}
+                </div>
+            </fieldset>
+            <br>
+            <div class="form-group">
+                {{ project_form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+    </div>
+</section>
 {% block javascript %}
 <script>
     let u_p_labels = JSON.parse({{ user_projects_labels | tojson }})
@@ -97,11 +90,13 @@
     datasets: [{
     data: u_p_data,
     backgroundColor: [
-        'rgb(117, 189, 187)',
-        'rgb(110, 79, 135)',
-        'rgb(189, 117, 120)',
-        'rgb(98, 113, 162)',
-        'rgb(162, 98, 146)'
+        'rgb(24, 188, 156)',
+        'rgb(127, 140, 141)',
+        'rgb(243, 156, 18)',
+        'rgb(37, 53, 68)',
+        'rgb(231, 77, 60)',
+        'rgb(52, 152, 219)',
+        'rgb(213, 218, 219)'
     ],
     hoverOffset: 10
     }]

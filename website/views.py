@@ -216,7 +216,7 @@ def delete_project(project_id):
     flash(f'Project "{current_project.project_name} has been deleted!', category='success')
     return redirect(url_for('views.home'))
 
-@views.route('project/delete/<int:entry_id>', methods=['POST'])
+@views.route('project/delete/<int:entry_id>')
 @login_required
 def delete_entry(entry_id):
     current_entry = Entry.query.join(Project).filter(and_(Entry.id==entry_id, Project.owner==current_user)).first_or_404(entry_id)

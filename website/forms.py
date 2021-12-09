@@ -33,7 +33,7 @@ class LoginForm(FlaskForm):
     
 class AddProjectForm(FlaskForm):
     project_name = StringField('Project Name', validators=[DataRequired(), Length(min=1, max=30)])
-    notes = StringField('Notes')
+    notes = StringField('Notes (optional)', default='(My goal is 10 hours a week)')
     submit = SubmitField('Add New Project')
     
 class EntryForm(FlaskForm):

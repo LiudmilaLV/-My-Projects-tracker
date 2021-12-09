@@ -16,7 +16,7 @@
     <nav class="navbar navbar-expand-md navbar-dark bg-primary">
         <div class="container-xl">
           <a class="navbar-brand" href="{{ url_for('views.home') }}">
-            <span>Your Project Tracker</span>
+            <span>My Project Tracker</span>
           </a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -31,10 +31,11 @@
                   <li class="nav-item">
                     <a class="nav-link fw-lighter" href="{{ url_for('views.edit_project', project_id=project_id) }}">Edit Project</a>
                   </li>
-                {% endif %}
+                {% else %}
                 <li class="nav-item">
-                  <a class="nav-link fw-lighter" href="#addproject">Add Project</a>
+                  <a class="nav-link fw-lighter" href="#addproject">Add New Project</a>
                 </li>
+                {% endif %}
                 <li class="nav-item">
                   <a class="nav-link active fw-lighter" href="{{ url_for('views.home') }}">Home
                     <span class="visually-hidden">(current)</span>
@@ -74,11 +75,14 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/js/bootstrap.bundle.min.js" 
     integrity="sha384-kQtW33rZJAHjgefvhyyzcGF3C5TFyBQBA13V1RKPf4uH+bwyzQxZ6CmMZHmNBEfJ" 
     crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
-  window.setTimeout(function() {
-    $(".alert").fadeTo(500, 0) 
-  }, 4000);
-</script>
+      $(document).ready(function() {
+        window.setTimeout(function() {
+          $(".alert").fadeTo(500, 0).remove();
+        }, 4000);
+      });
+    </script>
 </body>
 <footer></footer>
 </html>
