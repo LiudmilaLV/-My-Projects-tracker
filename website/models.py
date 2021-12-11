@@ -1,9 +1,11 @@
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from sqlalchemy.orm import backref
+from sqlalchemy.sql.expression import null
 from . import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
 from flask import current_app
+from datetime import datetime
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -41,6 +43,7 @@ class Project(db.Model):
     
 class Entry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     date = db.Column(db.Date, default=func.current_date(), nullable=False)
     duration = db.Column(db.Integer, nullable=False)
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=False)

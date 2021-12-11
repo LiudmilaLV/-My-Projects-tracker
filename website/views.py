@@ -53,7 +53,7 @@ def project(project_id):
     current_project = Project.query.filter(Project.id==project_id, Project.owner==current_user).first_or_404()
     if current_project.owner != current_user:
         abort(403)
-    last5 = Entry.query.join(Project).filter(and_(Entry.project_id==current_project.id, Project.owner==current_user)).order_by(Entry.date.desc()).limit(5).all()
+    last5 = Entry.query.join(Project).filter(and_(Entry.project_id==current_project.id, Project.owner==current_user)).order_by(Entry.timestamp.desc()).limit(5).all()
     current_day = datetime.now().date()
     
     # Getting data for a "this week" chart

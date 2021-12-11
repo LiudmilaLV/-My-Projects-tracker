@@ -6,20 +6,21 @@
     <!-- If User does'n have any projects-->
     <div class="row d-flex flex-wrap justify-content-evenly">
         <div class="col-md-5 my-5">
-            <h1>Hi, {{user.name}}!</h1>
-            <h4>No projects yet?</h4>
+            <h1 class="text-primary">Hi, {{user.name}}!</h1>
         </div>
         <div class="col-md-5 my-5">
             <h3>Welcome to the Project Tracker!</h3>
             <h6>A simple tool to measure time you spend on your projects and track your progress with infographics.</h6>
+            <h5>No projects yet?</h5>
+            <h6>Let's add one here below!</h6>
         </div>
     </div>
     {% else %} 
     <!-- If User has projects -->
     <div class="row d-flex flex-wrap justify-content-evenly">
         <div class="col-md-5">
-            <div class="display-1">Hi, {{user.name}}!</div>
-            <h2 class="mt-5">Your projects:</h2>
+            <div class="display-2 my-3 mt-5">Hi, {{user.name}}!</div>
+            <h3 class="my-3">Your projects:</h3>
             <div class="d-flex flex-wrap justify-content-between">
                 {% for project in user.projects %}
                 <div class="btn mb-2 btn-outline-primary btn-lg">
