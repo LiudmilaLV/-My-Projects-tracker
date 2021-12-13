@@ -87,49 +87,28 @@
         </div>
     </section>
 
-        <!-- 5 last entries -->
-        <div class="container my-3 col-md-6 text-center">
-            <h4>Last Entries</h4>
-            <table class="table table-hover">
-                <thead>
-                    <tr class="table-light">
-                        <th scope="col">Date</th>
-                        <th scope="col">Minutes</th>
-                        <th scope="col"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for entry in last5 %}
-                    <tr>
-                        <td>{{ entry.date.strftime("%B %d, %Y") }}</td>
-                        <td>{{ entry.duration }}</td>
-                        <td><a href="{{ url_for('views.delete_entry', entry_id=entry.id) }}" class="btn btn-outline-danger btn-sm">Delete</a></td>
-                    </tr>
-                    <!-- Modal for Deleting an Entry -->
-                    <!-- <div class="modal fade" id="deleteEntryModal" tabindex="-1" aria-labelledby="deleteEntryModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="deleteEntryModalLabel">Delete this Entry?</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <p>Date: {{ entry.date.strftime("%B %d, %Y") }}</p>
-                                    <p>Minutes: {{ entry.duration }}</p>                                  
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <form action="{{ url_for('views.delete_entry', entry_id=entry.id) }}" method="POST">
-                                        <input class="btn btn-danger" type="submit" value="Delete">
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div> -->
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+<!-- 5 last entries -->
+<div class="container my-3 col-md-6 text-center">
+    <h4>Last Entries</h4>
+    <table class="table table-hover">
+        <thead>
+            <tr class="table-light">
+                <th scope="col">Date</th>
+                <th scope="col">Minutes</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in last5 %}
+            <tr>
+                <td>{{ entry.date.strftime("%B %d, %Y") }}</td>
+                <td>{{ entry.duration }}</td>
+                <td><a href="{{ url_for('views.delete_entry', entry_id=entry.id) }}" class="btn btn-outline-danger btn-sm">Delete</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 
 
 {% block javascript %}
@@ -139,8 +118,10 @@
     let t_w_labels = JSON.parse({{ this_week_labels | tojson }})
     let l30_data = JSON.parse({{ this_month_data | tojson }})
     let l30_labels = JSON.parse({{ this_month_labels | tojson }})
+    let quarter_data_goal = JSON.parse({{ this_quarter_data_goal | tojson }})
     let quarter_data = JSON.parse({{ this_quarter_data | tojson }})
     let quarter_labels = JSON.parse({{ this_quarter_labels | tojson }})
+    let quarter_progresss = JSON.parse({{ this_quarter_progress | tojson }})
     let year_data = JSON.parse({{ this_year_data | tojson }})
     let year_labels = JSON.parse({{ this_year_labels | tojson }})
     let all_data = JSON.parse({{ alltime_data | tojson }})
@@ -167,12 +148,12 @@
     const last30_data = {
         labels: l30_labels,
         datasets: [{
-            label: 'Hours',
+            label: 'Your Progress',
             data: l30_data,
             fill: false,
-            backgroundColor: 'rgb(117, 189, 187)',
+            backgroundColor: 'rgb(52, 152, 219)',
             tension: 0.1
-        }]
+        },]
     };
     const l30_config = {
         type: 'bar',
@@ -184,15 +165,21 @@
     const tq_data = {
         labels: quarter_labels,
         datasets: [{
-            label: 'Hours',
-            data: quarter_data,
+            label: 'Your Progress',
+            data: quarter_progresss,
             fill: false,
-            backgroundColor: 'rgb(117, 189, 187)',
+            backgroundColor: 'rgb(52, 152, 219)',
+            tension: 0.1
+        }, {
+            label: 'Your Goal',
+            data: quarter_data_goal,
+            fill: false,
+            backgroundColor: 'rgb(231, 76, 60)',
             tension: 0.1
         }]
     };
     const tq_config = {
-        type: 'bar',
+        type: 'line',
         data: tq_data,
 };
     const this_quarter_chart = new Chart(document.getElementById('this_quarter_chart'), tq_config);

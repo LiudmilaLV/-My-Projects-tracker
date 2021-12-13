@@ -8,6 +8,7 @@ from sqlalchemy import extract, and_, or_
 from flask_mail import Message
 import json
 from datetime import datetime, timedelta
+import math
 
 views = Blueprint('views', __name__)
 
@@ -88,7 +89,7 @@ def project(project_id):
     for minute, date in this_month_enries:
         this_month_d.append(minute / 60)
         this_month_l.append(date.strftime("%b %e"))
-    thismonth_summ_hours = round(sum(this_month_d))
+    thismonth_summ_hours = math.ceil((sum(this_month_d)))
     this_month_data = json.dumps(this_month_d)
     this_month_labels = json.dumps(this_month_l)
     
@@ -144,9 +145,24 @@ def project(project_id):
     for minute, date in this_quarter_entries:
         this_quarter_d.append(minute / 60)
         this_quarter_l.append(date.strftime("%b %e") + " - " + (date + timedelta(days=7)).strftime("%b %e"))
-    thisquarter_summ_hours = round(sum(this_quarter_d))
+    thisquarter_summ_hours = math.ceil(sum(this_quarter_d))
     this_quarter_data = json.dumps(this_quarter_d)
     this_quarter_labels = json.dumps(this_quarter_l)
+    
+    # Hours per Week Goal (shows at "This Quarter" chart)
+    print("-----------------------")
+    print(this_quarter_d)
+    print(this_quarter_l)
+    week_goal = 10
+    this_quarter_d_goal = [week_goal]
+    this_quarter_p =[math.ceil(this_quarter_d[0])]
+    for week, _ in enumerate(this_quarter_d):
+        if week == 0:
+            continue
+        this_quarter_p.append(math.ceil(this_quarter_d[week] + this_quarter_p[week - 1]))
+        this_quarter_d_goal.append(week_goal*(week+1))    
+    this_quarter_progress = json.dumps(this_quarter_p)
+    this_quarter_data_goal = json.dumps(this_quarter_d_goal)
     
     # Getting data for a "this year" chart
     year_now = datetime.now().year
@@ -162,7 +178,7 @@ def project(project_id):
     for minute, date in this_year_entries:
         this_year_d.append(minute / 60)
         this_year_l.append(date.strftime("%B"))
-    thisyear_summ_hours = round(sum(this_year_d))
+    thisyear_summ_hours = math.ceil(sum(this_year_d))
     this_year_data = json.dumps(this_year_d)
     this_year_labels = json.dumps(this_year_l)
     
@@ -179,7 +195,7 @@ def project(project_id):
     for minute, date in this_year_entries:
         alltime_d.append(minute / 60)
         alltime_l.append(date.strftime("%B, %Y"))
-    alltime_summ_hours = round(sum(alltime_d))
+    alltime_summ_hours = math.ceil(sum(alltime_d))
     alltime_data = json.dumps(alltime_d)
     alltime_labels = json.dumps(alltime_l)
     
@@ -190,6 +206,8 @@ def project(project_id):
                             this_week_data = this_week_data, this_week_labels = this_week_labels,
                             this_month_data = this_month_data, this_month_labels = this_month_labels,
                             this_quarter_data = this_quarter_data,
+                            this_quarter_data_goal = this_quarter_data_goal,
+                            this_quarter_progress = this_quarter_progress,
                             this_quarter_labels = this_quarter_labels,
                             this_year_data = this_year_data,
                             this_year_labels = this_year_labels,
