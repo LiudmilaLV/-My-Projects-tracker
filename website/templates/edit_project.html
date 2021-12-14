@@ -20,6 +20,19 @@
                     {% endif %} 
                 </div>
                 <div class="form-group">
+                    {{ edit_project_form.goal.label(class="form-label mt-4") }}
+                    {% if edit_project_form.goal.errors %}
+                        {{ edit_project_form.goal(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in edit_project_form.goal.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ edit_project_form.goal(class="form-control") }}
+                    {% endif %} 
+                </div>
+                <div class="form-group">
                     {{ edit_project_form.notes.label(class="form-label mt-4") }}
                     {% if edit_project_form.notes.errors %}
                         {{ edit_project_form.notes(class="form-control is-invalid") }}

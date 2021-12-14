@@ -33,6 +33,7 @@ class User(db.Model, UserMixin):
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     project_name = db.Column(db.String(30), nullable=False)
+    goal = db.Column(db.Integer)
     notes = db.Column(db.String(1000), nullable=False, default='')
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     entries = db.relationship('Entry')

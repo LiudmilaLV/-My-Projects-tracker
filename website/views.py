@@ -29,6 +29,9 @@ def home():
     for project_name, project_duration in recent_projects:
         user_projects_l.append(project_name)
         user_projects_d.append(project_duration)
+    no_entries_yet = True
+    if user_projects_d:
+        no_entries_yet = False
     user_projects_labels = json.dumps(user_projects_l)
     user_projects_data = json.dumps(user_projects_d)
     
@@ -38,14 +41,17 @@ def home():
         if user:
             flash('Project already exists! Use another name', category='warning')
         else:
-            new_project = Project(project_name = project_form.project_name.data, notes = project_form.notes.data, user_id = current_user.id)
+            new_project = Project(project_name = project_form.project_name.data, goal = project_form.goal.data, notes = project_form.notes.data, user_id = current_user.id)
             db.session.add(new_project)
             db.session.commit()
-            flash('Project added!', category='success')
+            flash('New project added!', category='success')
+    #else:
+        #flash('Project not added. Please, fill the fields correctly.', category='danger')
     return render_template("home.html", 
                             user = current_user,
                             project_form = project_form,
                             user_projects_labels = user_projects_labels, user_projects_data = user_projects_data,
+                            no_entries_yet = no_entries_yet,
                             )
 
 @views.route('project/<int:project_id>', methods=['GET', 'POST'])
@@ -87,82 +93,43 @@ def project(project_id):
     this_month_d = []
     this_month_l = []
     for minute, date in this_month_enries:
-        this_month_d.append(minute / 60)
+        this_month_d.append(math.ceil(minute / 60))
         this_month_l.append(date.strftime("%b %e"))
-    thismonth_summ_hours = math.ceil((sum(this_month_d)))
+    thismonth_summ_hours = sum(this_month_d)
     this_month_data = json.dumps(this_month_d)
     this_month_labels = json.dumps(this_month_l)
     
-    # Getting data for a "this quarter" chart
-    month_now = datetime.now().month
-    this_quarter_entries = []
-    if month_now in [1,2,3]:
-        this_quarter_entries = (db.session.query(db.func.sum(Entry.duration), Entry.date)
+    # Getting data for a "last 12weeks" chart
+    a_day_91_days_ago = current_day - timedelta(days=91)
+    this_12weeks_entries = []
+    this_12weeks_entries = (db.session.query(db.func.sum(Entry.duration), Entry.date)
                         .join(Project)
-                        .filter(and_(Project.owner==current_user, Entry.project_id==project_id, 
-                                        or_(extract('month', Entry.date)==1, extract('month', Entry.date)==2, extract('month', Entry.date)==3),
-                                    )
-                                )
+                        .filter(and_(Project.owner==current_user, Entry.project_id==project_id, Entry.date.between(a_day_91_days_ago, current_day)))
                         .group_by(extract('week', Entry.date))
                         .order_by(Entry.date)
                         .all()
                         )
-    elif month_now in [4,5,6]:
-        this_quarter_entries = (db.session.query(db.func.sum(Entry.duration), Entry.date)
-                        .join(Project)
-                        .filter(and_(Project.owner==current_user, Entry.project_id==project_id, 
-                                        or_(extract('month', Entry.date)==4, extract('month', Entry.date)==5, extract('month', Entry.date)==6),
-                                    )
-                                )
-                        .group_by(extract('week', Entry.date))
-                        .order_by(Entry.date)
-                        .all()
-                        )
-    elif month_now in [7,8,9]:
-        this_quarter_entries = (db.session.query(db.func.sum(Entry.duration), Entry.date)
-                        .join(Project)
-                        .filter(and_(Project.owner==current_user, Entry.project_id==project_id, 
-                                        or_(extract('month', Entry.date)==7, extract('month', Entry.date)==8, extract('month', Entry.date)==9),
-                                    )
-                                )
-                        .group_by(extract('week', Entry.date))
-                        .order_by(Entry.date)
-                        .all()
-                        )
-    else:
-        this_quarter_entries = (db.session.query(db.func.sum(Entry.duration), Entry.date)
-                        .join(Project)
-                        .filter(and_(Project.owner==current_user, Entry.project_id==project_id, 
-                                        or_(extract('month', Entry.date)==10, extract('month', Entry.date)==11, extract('month', Entry.date)==12),
-                                    )
-                                )
-                        .group_by(extract('week', Entry.date))
-                        .order_by(Entry.date)
-                        .all()
-                        )
-    this_quarter_d = []
-    this_quarter_l = []
-    for minute, date in this_quarter_entries:
-        this_quarter_d.append(minute / 60)
-        this_quarter_l.append(date.strftime("%b %e") + " - " + (date + timedelta(days=7)).strftime("%b %e"))
-    thisquarter_summ_hours = math.ceil(sum(this_quarter_d))
-    this_quarter_data = json.dumps(this_quarter_d)
-    this_quarter_labels = json.dumps(this_quarter_l)
+    this_12weeks_d = []
+    this_12weeks_l = []
+    for minute, date in this_12weeks_entries:
+        this_12weeks_d.append(math.ceil(minute / 60))
+        this_12weeks_l.append(date.strftime("%b %e") + " - " + (date + timedelta(days=7)).strftime("%b %e"))
+    this_12weeks_labels = json.dumps(this_12weeks_l)
     
-    # Hours per Week Goal (shows at "This Quarter" chart)
-    print("-----------------------")
-    print(this_quarter_d)
-    print(this_quarter_l)
-    week_goal = 10
-    this_quarter_d_goal = [week_goal]
-    this_quarter_p =[math.ceil(this_quarter_d[0])]
-    for week, _ in enumerate(this_quarter_d):
+    # Hours per week (shows at "This 12weeks" chart)
+    week_goal = current_project.goal
+    this_12weeks_d_goal = [week_goal]
+    this_12weeks_p = []
+    if this_12weeks_d != []:
+        this_12weeks_p =[this_12weeks_d[0]]
+    for week, _ in enumerate(this_12weeks_d):
         if week == 0:
             continue
-        this_quarter_p.append(math.ceil(this_quarter_d[week] + this_quarter_p[week - 1]))
-        this_quarter_d_goal.append(week_goal*(week+1))    
-    this_quarter_progress = json.dumps(this_quarter_p)
-    this_quarter_data_goal = json.dumps(this_quarter_d_goal)
+        this_12weeks_p.append(this_12weeks_d[week] + this_12weeks_p[week - 1])
+        this_12weeks_d_goal.append(week_goal*(week+1))    
+    this_12weeks_progress = json.dumps(this_12weeks_p)
+    this_12weeks_data_goal = json.dumps(this_12weeks_d_goal)
+    this12weeks_summ_hours = sum(this_12weeks_d)
     
     # Getting data for a "this year" chart
     year_now = datetime.now().year
@@ -176,9 +143,9 @@ def project(project_id):
     this_year_d = []
     this_year_l = []
     for minute, date in this_year_entries:
-        this_year_d.append(minute / 60)
+        this_year_d.append(math.ceil(minute / 60))
         this_year_l.append(date.strftime("%B"))
-    thisyear_summ_hours = math.ceil(sum(this_year_d))
+    thisyear_summ_hours = sum(this_year_d)
     this_year_data = json.dumps(this_year_d)
     this_year_labels = json.dumps(this_year_l)
     
@@ -193,29 +160,28 @@ def project(project_id):
     alltime_d = []
     alltime_l = []
     for minute, date in this_year_entries:
-        alltime_d.append(minute / 60)
+        alltime_d.append(math.ceil(minute / 60))
         alltime_l.append(date.strftime("%B, %Y"))
-    alltime_summ_hours = math.ceil(sum(alltime_d))
+    alltime_summ_hours = sum(alltime_d)
     alltime_data = json.dumps(alltime_d)
     alltime_labels = json.dumps(alltime_l)
     
     return render_template("project.html",
                             user = current_user, project_id = current_project.id,
-                            name = current_project.project_name, notes = current_project.notes,
+                            name = current_project.project_name, notes = current_project.notes, week_goal = week_goal,
                             last5 = last5,
                             this_week_data = this_week_data, this_week_labels = this_week_labels,
                             this_month_data = this_month_data, this_month_labels = this_month_labels,
-                            this_quarter_data = this_quarter_data,
-                            this_quarter_data_goal = this_quarter_data_goal,
-                            this_quarter_progress = this_quarter_progress,
-                            this_quarter_labels = this_quarter_labels,
+                            this_12weeks_data_goal = this_12weeks_data_goal,
+                            this_12weeks_progress = this_12weeks_progress,
+                            this_12weeks_labels = this_12weeks_labels,
                             this_year_data = this_year_data,
                             this_year_labels = this_year_labels,
                             alltime_data = alltime_data,
                             alltime_labels =alltime_labels,
                             thisweek_summ_hours = thisweek_summ_hours,
                             thismonth_summ_hours = thismonth_summ_hours,
-                            thisquarter_summ_hours = thisquarter_summ_hours,
+                            this12weeks_summ_hours = this12weeks_summ_hours,
                             thisyear_summ_hours = thisyear_summ_hours,
                             alltime_summ_hours = alltime_summ_hours
                             )
