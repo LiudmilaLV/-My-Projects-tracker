@@ -7,9 +7,9 @@
     <section class="container" id="greet">
         <div class="container col-md-8">
             <div class="text-center">
-                <h1>{{ name }}</h1>
+                <h2>{{ name }}</h2>
                 <h5 class="text-primary">{{ notes }}</h5>
-                <h5 class="text-primary">My goal is <b>{{ week_goal }} hours a week</b></h5>
+                <h5 class="text-primary">My goal is <b>{{ week_goal }} hours a week.</b></h5>
             </div>
                 <ul class="nav nav-pills mb-2" id="pills-tab" role="tablist">
                     <li class="nav-item" role="presentation">
@@ -52,12 +52,12 @@
                         </div>
                     </div>
                     <div class="tab-pane fade" id="pills-this-12weeks" role="tabpanel" aria-labelledby="pills-this-12weeks-tab">
-                        <p>Last 12 weeks you've spent <b>{{ this12weeks_summ_hours }} hours</b> on this project.</p>
+                        <p>Last 12 weeks you've spent <b>{{ these12weeks_summ_hours }} hours</b> on this project.</p>
                         <!-- This 12 weeks chart -->
                         <div class="card my-3">
                             <div class="card-body">
                                 <div class="chart">
-                                    <canvas id="this_12weeks_chart"></canvas>
+                                    <canvas id="these_12weeks_chart"></canvas>
                                 </div>
                             </div>    
                         </div>
@@ -119,9 +119,9 @@
     let t_w_labels = JSON.parse({{ this_week_labels | tojson }})
     let l30_data = JSON.parse({{ this_month_data | tojson }})
     let l30_labels = JSON.parse({{ this_month_labels | tojson }})
-    let twelve_weeks_data_goal = JSON.parse({{ this_12weeks_data_goal | tojson }})
-    let twelve_weeks_labels = JSON.parse({{ this_12weeks_labels | tojson }})
-    let twelve_weeks_progresss = JSON.parse({{ this_12weeks_progress | tojson }})
+    let twelve_weeks_data_goal = JSON.parse({{ these_12weeks_data_goal | tojson }})
+    let twelve_weeks_labels = JSON.parse({{ these_12weeks_labels | tojson }})
+    let twelve_weeks_progresss = JSON.parse({{ these_12weeks_progress | tojson }})
     let year_data = JSON.parse({{ this_year_data | tojson }})
     let year_labels = JSON.parse({{ this_year_labels | tojson }})
     let all_data = JSON.parse({{ alltime_data | tojson }})
@@ -186,7 +186,7 @@
         type: 'line',
         data: tq_data,
 };
-    const this_12weeks_chart = new Chart(document.getElementById('this_12weeks_chart'), tq_config);
+    const these_12weeks_chart = new Chart(document.getElementById('these_12weeks_chart'), tq_config);
 
     // This year chart
     const ty_data = {

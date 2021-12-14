@@ -23,7 +23,7 @@
             <h3 class="my-3">Your projects:</h3>
             <div class="d-flex flex-wrap justify-content-between">
                 {% for project in user.projects %}
-                <div class="btn mb-2 btn-outline-primary btn-lg">
+                <div class="btn btn-primary btn-lg">
                     <a href="{{ url_for('views.project', project_id=project.id) }}">
                         {{project.project_name}}
                     </a>

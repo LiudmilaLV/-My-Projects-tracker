@@ -4,7 +4,8 @@ from flask_login import login_required, current_user
 from .models import User, Project, Entry
 from . import db, mail, bcrypt
 from .forms import AddProjectForm, EditProjectForm, EntryForm, ResetRequestForm, ResetPasswordForm
-from sqlalchemy import extract, and_, or_
+from sqlalchemy import extract, and_
+from sqlalchemy.sql import func
 from flask_mail import Message
 import json
 from datetime import datetime, timedelta
@@ -16,7 +17,7 @@ views = Blueprint('views', __name__)
 @login_required
 def home():
     # Getting data for pie-chart(recent projects)
-    current_day = datetime.now().date()
+    current_day = datetime.utcnow().date()
     a_month_ago = current_day - timedelta(days=30)
     recent_projects = (db.session.query(Project.project_name, db.func.sum(Entry.duration))
                         .join(Entry)
@@ -93,47 +94,54 @@ def project(project_id):
     this_month_d = []
     this_month_l = []
     for minute, date in this_month_enries:
-        this_month_d.append(math.ceil(minute / 60))
+        this_month_d.append(round((minute / 60),1))
         this_month_l.append(date.strftime("%b %e"))
     thismonth_summ_hours = sum(this_month_d)
     this_month_data = json.dumps(this_month_d)
     this_month_labels = json.dumps(this_month_l)
     
     # Getting data for a "last 12weeks" chart
-    a_day_91_days_ago = current_day - timedelta(days=91)
-    this_12weeks_entries = []
-    this_12weeks_entries = (db.session.query(db.func.sum(Entry.duration), Entry.date)
+    next_monday = current_day - timedelta(days=current_day.weekday())
+    a_day_84_days_ago = next_monday - timedelta(days=84)
+    these_12weeks_entries = []
+    these_12weeks_entries = (db.session.query(func.sum(Entry.duration), Entry.date)
                         .join(Project)
-                        .filter(and_(Project.owner==current_user, Entry.project_id==project_id, Entry.date.between(a_day_91_days_ago, current_day)))
+                        .filter(and_(Project.owner==current_user, Entry.project_id==project_id, Entry.date.between(a_day_84_days_ago, next_monday)))
                         .group_by(extract('week', Entry.date))
                         .order_by(Entry.date)
                         .all()
                         )
-    this_12weeks_d = []
-    this_12weeks_l = []
-    for minute, date in this_12weeks_entries:
-        this_12weeks_d.append(math.ceil(minute / 60))
-        this_12weeks_l.append(date.strftime("%b %e") + " - " + (date + timedelta(days=7)).strftime("%b %e"))
-    this_12weeks_labels = json.dumps(this_12weeks_l)
+    these_12weeks_d = []
+    these_12weeks_l = []
+    for minute, date in these_12weeks_entries:
+        these_12weeks_d.append(round((minute / 60),1))
+        these_12weeks_l.append(date.strftime("%b %e") + " - " + (date + timedelta(days=7)).strftime("%b %e"))
+    these_12weeks_labels = json.dumps(these_12weeks_l)
     
-    # Hours per week (shows at "This 12weeks" chart)
+    # Hours per week Goal (shows at "This 12weeks" chart)
     week_goal = current_project.goal
-    this_12weeks_d_goal = [week_goal]
-    this_12weeks_p = []
-    if this_12weeks_d != []:
-        this_12weeks_p =[this_12weeks_d[0]]
-    for week, _ in enumerate(this_12weeks_d):
+    these_12weeks_d_goal = [week_goal]
+    these_12weeks_p = []
+    if these_12weeks_d:
+        these_12weeks_p =[these_12weeks_d[0]]
+    for week, _ in enumerate(these_12weeks_d):
         if week == 0:
             continue
-        this_12weeks_p.append(this_12weeks_d[week] + this_12weeks_p[week - 1])
-        this_12weeks_d_goal.append(week_goal*(week+1))    
-    this_12weeks_progress = json.dumps(this_12weeks_p)
-    this_12weeks_data_goal = json.dumps(this_12weeks_d_goal)
-    this12weeks_summ_hours = sum(this_12weeks_d)
+        these_12weeks_p.append(these_12weeks_d[week] + these_12weeks_p[week - 1])
+        these_12weeks_d_goal.append(week_goal*(week+1))    
+    these_12weeks_progress = json.dumps(these_12weeks_p)
+    these_12weeks_data_goal = json.dumps(these_12weeks_d_goal)
+    these12weeks_summ_hours = sum(these_12weeks_d)
+    print('------------------------------------------')
+    print(these_12weeks_d)
+    print(these_12weeks_p)
+    print(these_12weeks_l)
+    print('++++++++++++++++++++++++++++++++++++++++++')
+    print(these_12weeks_entries)
     
     # Getting data for a "this year" chart
     year_now = datetime.now().year
-    this_year_entries = (db.session.query(db.func.sum(Entry.duration), Entry.date)
+    this_year_entries = (db.session.query(func.sum(Entry.duration), Entry.date)
                         .join(Project)
                         .filter(and_(Project.owner==current_user, Entry.project_id==project_id, extract('year', Entry.date)==year_now))
                         .group_by(extract('month', Entry.date))
@@ -143,14 +151,14 @@ def project(project_id):
     this_year_d = []
     this_year_l = []
     for minute, date in this_year_entries:
-        this_year_d.append(math.ceil(minute / 60))
+        this_year_d.append(round((minute / 60),1))
         this_year_l.append(date.strftime("%B"))
     thisyear_summ_hours = sum(this_year_d)
     this_year_data = json.dumps(this_year_d)
     this_year_labels = json.dumps(this_year_l)
     
     # Getting data for a "all time" chart
-    alltime_entries = (db.session.query(db.func.sum(Entry.duration), Entry.date)
+    alltime_entries = (db.session.query(func.sum(Entry.duration), Entry.date)
                         .join(Project)
                         .filter(and_(Project.owner==current_user, Entry.project_id==project_id))
                         .group_by(extract('month', Entry.date))
@@ -160,7 +168,7 @@ def project(project_id):
     alltime_d = []
     alltime_l = []
     for minute, date in this_year_entries:
-        alltime_d.append(math.ceil(minute / 60))
+        alltime_d.append(round((minute / 60),1))
         alltime_l.append(date.strftime("%B, %Y"))
     alltime_summ_hours = sum(alltime_d)
     alltime_data = json.dumps(alltime_d)
@@ -172,16 +180,16 @@ def project(project_id):
                             last5 = last5,
                             this_week_data = this_week_data, this_week_labels = this_week_labels,
                             this_month_data = this_month_data, this_month_labels = this_month_labels,
-                            this_12weeks_data_goal = this_12weeks_data_goal,
-                            this_12weeks_progress = this_12weeks_progress,
-                            this_12weeks_labels = this_12weeks_labels,
+                            these_12weeks_data_goal = these_12weeks_data_goal,
+                            these_12weeks_progress = these_12weeks_progress,
+                            these_12weeks_labels = these_12weeks_labels,
                             this_year_data = this_year_data,
                             this_year_labels = this_year_labels,
                             alltime_data = alltime_data,
                             alltime_labels =alltime_labels,
                             thisweek_summ_hours = thisweek_summ_hours,
                             thismonth_summ_hours = thismonth_summ_hours,
-                            this12weeks_summ_hours = this12weeks_summ_hours,
+                            these12weeks_summ_hours = these12weeks_summ_hours,
                             thisyear_summ_hours = thisyear_summ_hours,
                             alltime_summ_hours = alltime_summ_hours
                             )
@@ -246,6 +254,7 @@ def edit_project(project_id):
     elif request.method == "GET":
         edit_project_form.project_name.data = current_project.project_name
         edit_project_form.notes.data = current_project.notes
+        edit_project_form.goal.data = current_project.goal
     return render_template('edit_project.html', user = current_user, project_id=current_project.id, edit_project_form=edit_project_form)
 
 def send_reset_mail(user):
