@@ -9,7 +9,6 @@ from sqlalchemy.sql import func
 from flask_mail import Message
 import json
 from datetime import datetime, timedelta
-import math
 
 views = Blueprint('views', __name__)
 
@@ -78,7 +77,7 @@ def project(project_id):
     for minute, date in this_week_enries:
         this_week_d.append(minute)
         this_week_l.append(date.strftime("%B %d"))
-    thisweek_summ_hours = round((sum(this_week_d) / 60))
+    thisweek_summ_hours = round((sum(this_week_d) / 60),1)
     this_week_data = json.dumps(this_week_d)
     this_week_labels = json.dumps(this_week_l)
     
@@ -96,17 +95,17 @@ def project(project_id):
     for minute, date in this_month_enries:
         this_month_d.append(round((minute / 60),1))
         this_month_l.append(date.strftime("%b %e"))
-    thismonth_summ_hours = sum(this_month_d)
+    thismonth_summ_hours = round(sum(this_month_d),1)
     this_month_data = json.dumps(this_month_d)
     this_month_labels = json.dumps(this_month_l)
     
     # Getting data for a "last 12weeks" chart
-    next_monday = current_day - timedelta(days=current_day.weekday())
-    a_day_84_days_ago = next_monday - timedelta(days=84)
+    next_monday = current_day + timedelta(days=current_day.weekday()) 
+    a_day_98_days_ago = next_monday - timedelta(days=98 + current_day.weekday())
     these_12weeks_entries = []
     these_12weeks_entries = (db.session.query(func.sum(Entry.duration), Entry.date)
                         .join(Project)
-                        .filter(and_(Project.owner==current_user, Entry.project_id==project_id, Entry.date.between(a_day_84_days_ago, next_monday)))
+                        .filter(and_(Project.owner==current_user, Entry.project_id==project_id, Entry.date.between(a_day_98_days_ago, next_monday)))
                         .group_by(extract('week', Entry.date))
                         .order_by(Entry.date)
                         .all()
@@ -115,8 +114,9 @@ def project(project_id):
     these_12weeks_l = []
     for minute, date in these_12weeks_entries:
         these_12weeks_d.append(round((minute / 60),1))
-        these_12weeks_l.append(date.strftime("%b %e") + " - " + (date + timedelta(days=7)).strftime("%b %e"))
+        these_12weeks_l.append(date.strftime("%b %e")) # + (date + timedelta(days=7)).strftime("%b %e"))
     these_12weeks_labels = json.dumps(these_12weeks_l)
+    these12weeks_summ_hours = round(sum(these_12weeks_d),1)
     
     # Hours per week Goal (shows at "This 12weeks" chart)
     week_goal = current_project.goal
@@ -131,13 +131,6 @@ def project(project_id):
         these_12weeks_d_goal.append(week_goal*(week+1))    
     these_12weeks_progress = json.dumps(these_12weeks_p)
     these_12weeks_data_goal = json.dumps(these_12weeks_d_goal)
-    these12weeks_summ_hours = sum(these_12weeks_d)
-    print('------------------------------------------')
-    print(these_12weeks_d)
-    print(these_12weeks_p)
-    print(these_12weeks_l)
-    print('++++++++++++++++++++++++++++++++++++++++++')
-    print(these_12weeks_entries)
     
     # Getting data for a "this year" chart
     year_now = datetime.now().year
@@ -153,7 +146,7 @@ def project(project_id):
     for minute, date in this_year_entries:
         this_year_d.append(round((minute / 60),1))
         this_year_l.append(date.strftime("%B"))
-    thisyear_summ_hours = sum(this_year_d)
+    thisyear_summ_hours = round(sum(this_year_d),1)
     this_year_data = json.dumps(this_year_d)
     this_year_labels = json.dumps(this_year_l)
     
@@ -170,7 +163,7 @@ def project(project_id):
     for minute, date in this_year_entries:
         alltime_d.append(round((minute / 60),1))
         alltime_l.append(date.strftime("%B, %Y"))
-    alltime_summ_hours = sum(alltime_d)
+    alltime_summ_hours = round(sum(alltime_d),1)
     alltime_data = json.dumps(alltime_d)
     alltime_labels = json.dumps(alltime_l)
     
@@ -248,6 +241,7 @@ def edit_project(project_id):
     if edit_project_form.validate_on_submit():
         current_project.project_name = edit_project_form.project_name.data
         current_project.notes = edit_project_form.notes.data
+        current_project.goal = edit_project_form.goal.data
         db.session.commit()
         flash('Changes has been saved!', category='success')
         return redirect(url_for('views.project', project_id=current_project.id))
