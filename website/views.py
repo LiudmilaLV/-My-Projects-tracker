@@ -9,6 +9,7 @@ from sqlalchemy.sql import func
 from flask_mail import Message
 import json
 from datetime import datetime, timedelta
+from isoweek import Week
 
 views = Blueprint('views', __name__)
 
@@ -101,34 +102,47 @@ def project(project_id):
     
     # Getting data for a "last 12weeks" chart
     next_monday = current_day + timedelta(days=current_day.weekday()) 
-    a_day_98_days_ago = next_monday - timedelta(days=98 + current_day.weekday())
+    a_day_84_days_ago = next_monday - timedelta(days=84 + current_day.weekday())
     these_12weeks_entries = []
-    these_12weeks_entries = (db.session.query(func.sum(Entry.duration), Entry.date)
+    these_12weeks_entries = (db.session.query(func.sum(Entry.duration), Entry.date, extract('year', Entry.date))
                         .join(Project)
-                        .filter(and_(Project.owner==current_user, Entry.project_id==project_id, Entry.date.between(a_day_98_days_ago, next_monday)))
+                        .filter(and_(Project.owner==current_user, Entry.project_id==project_id, Entry.date.between(a_day_84_days_ago, next_monday)))
                         .group_by(extract('week', Entry.date))
                         .order_by(Entry.date)
                         .all()
                         )
     these_12weeks_d = []
     these_12weeks_l = []
-    for minute, date in these_12weeks_entries:
+    for minute, date, year in these_12weeks_entries:
         these_12weeks_d.append(round((minute / 60),1))
-        these_12weeks_l.append(date.strftime("%b %e")) # + (date + timedelta(days=7)).strftime("%b %e"))
+        # these_12weeks_l.append(date.strftime("%b %e")) # + (date + timedelta(days=7)).strftime("%b %e"))
+        these_12weeks_l.append(
+            (Week(year, date.isocalendar()[1]).monday()).strftime("%b %e")
+            + "-"
+            + (Week(year, date.isocalendar()[1]).monday() + timedelta(days=6)).strftime("%b %e")
+            )
     these_12weeks_labels = json.dumps(these_12weeks_l)
+    these_12weeks_data = json.dumps(these_12weeks_d)
     these12weeks_summ_hours = round(sum(these_12weeks_d),1)
+    goal =False
+
+    d = Week(2011, 40).monday()
     
     # Hours per week Goal (shows at "This 12weeks" chart)
-    week_goal = current_project.goal
-    these_12weeks_d_goal = [week_goal]
+    these_12weeks_d_goal = []
     these_12weeks_p = []
-    if these_12weeks_d:
-        these_12weeks_p =[these_12weeks_d[0]]
-    for week, _ in enumerate(these_12weeks_d):
-        if week == 0:
-            continue
-        these_12weeks_p.append(these_12weeks_d[week] + these_12weeks_p[week - 1])
-        these_12weeks_d_goal.append(week_goal*(week+1))    
+    week_goal = 0
+    if current_project.goal:
+        goal = True
+        week_goal = current_project.goal
+        these_12weeks_d_goal = [week_goal]
+        if these_12weeks_d:
+            these_12weeks_p =[these_12weeks_d[0]]
+        for week, _ in enumerate(these_12weeks_d):
+            if week == 0:
+                continue
+            these_12weeks_p.append(these_12weeks_d[week] + these_12weeks_p[week - 1])
+            these_12weeks_d_goal.append(week_goal*(week+1))    
     these_12weeks_progress = json.dumps(these_12weeks_p)
     these_12weeks_data_goal = json.dumps(these_12weeks_d_goal)
     
@@ -166,16 +180,17 @@ def project(project_id):
     alltime_summ_hours = round(sum(alltime_d),1)
     alltime_data = json.dumps(alltime_d)
     alltime_labels = json.dumps(alltime_l)
-    
     return render_template("project.html",
                             user = current_user, project_id = current_project.id,
                             name = current_project.project_name, notes = current_project.notes, week_goal = week_goal,
                             last5 = last5,
                             this_week_data = this_week_data, this_week_labels = this_week_labels,
                             this_month_data = this_month_data, this_month_labels = this_month_labels,
+                            goal = goal,
                             these_12weeks_data_goal = these_12weeks_data_goal,
                             these_12weeks_progress = these_12weeks_progress,
                             these_12weeks_labels = these_12weeks_labels,
+                            these_12weeks_data = these_12weeks_data,
                             this_year_data = this_year_data,
                             this_year_labels = this_year_labels,
                             alltime_data = alltime_data,
