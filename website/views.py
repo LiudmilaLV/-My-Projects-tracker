@@ -9,7 +9,6 @@ from sqlalchemy.sql import func
 from flask_mail import Message
 import json
 from datetime import datetime, timedelta
-from isoweek import Week
 
 views = Blueprint('views', __name__)
 
@@ -65,14 +64,15 @@ def project(project_id):
     current_day = datetime.now().date()
     
     # Getting data for a "this week" chart
-    a_week_ago = current_day - timedelta(days=7)
+    last_monday = current_day - timedelta(days=current_day.weekday())
+    current_week = last_monday.strftime("%b %e") + ' - ' + (last_monday + timedelta(days = 6)).strftime("%b %e")
     this_week_enries = (db.session.query(db.func.sum(Entry.duration), Entry.date)
                         .join(Project)
-                        .filter(and_(Project.owner==current_user, Entry.project_id==project_id, Entry.date.between(a_week_ago, current_day)))
+                        .filter(and_(Project.owner==current_user, Entry.project_id==project_id, Entry.date.between(last_monday, current_day)))
                         .group_by(Entry.date)
                         .order_by(Entry.date)
                         .all()
-                        )
+    )
     this_week_d =[]
     this_week_l =[]
     for minute, date in this_week_enries:
@@ -99,39 +99,93 @@ def project(project_id):
     thismonth_summ_hours = round(sum(this_month_d),1)
     this_month_data = json.dumps(this_month_d)
     this_month_labels = json.dumps(this_month_l)
+
     
     # Getting data for a "last 12weeks" chart
-    next_monday = current_day + timedelta(days=current_day.weekday()) 
-    a_day_84_days_ago = next_monday - timedelta(days=84 + current_day.weekday())
+    next_monday = current_day - timedelta(days=current_day.weekday()) + timedelta(days=7) 
+    a_monday_84_days_ago = next_monday - timedelta(days=84)
     these_12weeks_entries = []
-    these_12weeks_entries = (db.session.query(func.sum(Entry.duration), Entry.date, extract('year', Entry.date))
+    these_12weeks_entries = (db.session.query(func.sum(Entry.duration), extract('week', Entry.date), extract('year', Entry.date))
                         .join(Project)
-                        .filter(and_(Project.owner==current_user, Entry.project_id==project_id, Entry.date.between(a_day_84_days_ago, next_monday)))
+                        .filter(and_(Project.owner==current_user, Entry.project_id==project_id, Entry.date.between(a_monday_84_days_ago, next_monday)))
                         .group_by(extract('week', Entry.date))
                         .order_by(Entry.date)
                         .all()
                         )
-    these_12weeks_d = []
+    raw_these_12weeks_d = []
     these_12weeks_l = []
-    for minute, date, year in these_12weeks_entries:
-        these_12weeks_d.append(round((minute / 60),1))
-        # these_12weeks_l.append(date.strftime("%b %e")) # + (date + timedelta(days=7)).strftime("%b %e"))
-        these_12weeks_l.append(
-            (Week(year, date.isocalendar()[1]).monday()).strftime("%b %e")
-            + "-"
-            + (Week(year, date.isocalendar()[1]).monday() + timedelta(days=6)).strftime("%b %e")
-            )
-    these_12weeks_labels = json.dumps(these_12weeks_l)
-    these_12weeks_data = json.dumps(these_12weeks_d)
-    these12weeks_summ_hours = round(sum(these_12weeks_d),1)
-    goal =False
+    raw_week_of_year_for_data = []
+    for minute, week, year in these_12weeks_entries:
+        raw_these_12weeks_d.append(round((minute / 60),1))
+        raw_week_of_year_for_data.append([week,year])
+    week_of_year_for_data = raw_week_of_year_for_data.copy()
 
-    d = Week(2011, 40).monday()
+        
+    # print('Current week:')
+    # print(current_day.isocalendar()[1])
+    # print('week_of_year_for_data length:')
+    # print(len(week_of_year_for_data))
+    # print('week_of_year_for_data :')
+    # print(week_of_year_for_data)
+    print('------------------------------------------------')
+
+            
+    # get labels for last 12 weeks
+    last_monday = current_day - timedelta(days=current_day.weekday())
+    reversed_12weeks_l = [last_monday.strftime("%b %e") + ' - ' + (last_monday + timedelta(days=6)).strftime("%b %e")]
+    for week in range(1,12):
+        reversed_12weeks_l.append((last_monday - timedelta(days = 7 * week)).strftime("%b %e") + ' - ' + (last_monday - timedelta(days =7 * week) + timedelta(days=6)).strftime("%b %e"))
+    reversed_12weeks_l.reverse()
+    these_12weeks_l = reversed_12weeks_l.copy()
+    # print(last_monday.strftime("%b %e"))
+    # print('len(these_12weeks_l):')
+    # print(len(these_12weeks_l))
+    # print('these_12weeks_l:')
+    # print(these_12weeks_l)
+    # print('------------------------------------------------')
+    
+    # get numbers of weeks and years (of weeks in array) of the labels
+    week_of_year_for_labels = [[last_monday.isocalendar()[1], last_monday.isocalendar()[0]]]
+    for week in range(1, len(these_12weeks_l)):
+        week_of_year_for_labels.append([(last_monday - timedelta(days = 7 * week)).isocalendar()[1], (last_monday - timedelta(days = 7 * week)).isocalendar()[0]])
+    week_of_year_for_labels.reverse()
+    # print('week_of_year_for_labels length:')
+    # print(len(week_of_year_for_labels))
+    # print('week_of_year_for_labels:')
+    # print(week_of_year_for_labels)
+    # print('------------------------------------------------')
+    
+    # adjust data-set according to it's week labels (creating 12-element "these_12weeks_d" list, even if originally some data skipped)
+    # if there is no data in db for some weeks among those last 12
+    buff_data_list = []
+    for i, d_element in enumerate(week_of_year_for_data):
+        if week_of_year_for_data.index(d_element) == week_of_year_for_labels.index(d_element):
+            buff_data_list.append(raw_these_12weeks_d[i])
+        else:
+            for j, l_element in enumerate(week_of_year_for_labels):
+                if d_element == l_element:
+                    for k in range(len(buff_data_list), j):
+                        buff_data_list.append(0)
+                    buff_data_list.append(raw_these_12weeks_d[i])
+                    
+    if len(week_of_year_for_labels) > len(buff_data_list) and buff_data_list != []:
+        for i in range(len(buff_data_list), len(week_of_year_for_labels)):
+            buff_data_list.append(0)
+    these_12weeks_d = buff_data_list.copy()
+    print('raw_these_12weeks_d length :')
+    print(len(raw_these_12weeks_d))
+    print(raw_these_12weeks_d)
+    print('------------------------------------------------')
+    print('these_12weeks_d length (missed week(s) added):')
+    print(len(these_12weeks_d))
+    print(these_12weeks_d)
+    print('------------------------------------------------')
+    
     
     # Hours per week Goal (shows at "This 12weeks" chart)
+    week_goal = 0
     these_12weeks_d_goal = []
     these_12weeks_p = []
-    week_goal = 0
     if current_project.goal:
         goal = True
         week_goal = current_project.goal
@@ -142,9 +196,19 @@ def project(project_id):
             if week == 0:
                 continue
             these_12weeks_p.append(these_12weeks_d[week] + these_12weeks_p[week - 1])
-            these_12weeks_d_goal.append(week_goal*(week+1))    
+            these_12weeks_d_goal.append(week_goal*(week+1))
+    else: goal = False
+    # print('these_12weeks_d_goal length:')
+    # print(len(these_12weeks_d_goal))
+    # print('these_12weeks_d_goal:')
+    # print(these_12weeks_d_goal)
+
+    # pass data to html
+    these_12weeks_labels = json.dumps(these_12weeks_l)
+    these_12weeks_data = json.dumps(these_12weeks_d)
+    these12weeks_summ_hours = round(sum(these_12weeks_d),1)
     these_12weeks_progress = json.dumps(these_12weeks_p)
-    these_12weeks_data_goal = json.dumps(these_12weeks_d_goal)
+    these_12weeks_data_goal = json.dumps(these_12weeks_d_goal)    
     
     # Getting data for a "this year" chart
     year_now = datetime.now().year
@@ -187,6 +251,7 @@ def project(project_id):
                             this_week_data = this_week_data, this_week_labels = this_week_labels,
                             this_month_data = this_month_data, this_month_labels = this_month_labels,
                             goal = goal,
+                            current_week = current_week,
                             these_12weeks_data_goal = these_12weeks_data_goal,
                             these_12weeks_progress = these_12weeks_progress,
                             these_12weeks_labels = these_12weeks_labels,
