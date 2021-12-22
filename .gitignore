@@ -3,4 +3,4 @@ env
 *.pyc
 *.db
 notes.txt
-test.py
+mytest1.py

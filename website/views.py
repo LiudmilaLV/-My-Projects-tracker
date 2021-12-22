@@ -4,6 +4,7 @@ from flask_login import login_required, current_user
 from .models import User, Project, Entry
 from . import db, mail, bcrypt
 from .forms import AddProjectForm, EditProjectForm, EntryForm, ResetRequestForm, ResetPasswordForm
+from .helper import adjust_data
 from sqlalchemy import extract, and_
 from sqlalchemy.sql import func
 from flask_mail import Message
@@ -17,10 +18,10 @@ views = Blueprint('views', __name__)
 def home():
     # Getting data for pie-chart(recent projects)
     current_day = datetime.utcnow().date()
-    a_month_ago = current_day - timedelta(days=30)
+    a_day_30_days_ago = current_day - timedelta(days=30)
     recent_projects = (db.session.query(Project.project_name, db.func.sum(Entry.duration))
                         .join(Entry)
-                        .filter(and_(Project.owner==current_user, Entry.date.between(a_month_ago, current_day)))
+                        .filter(and_(Project.owner==current_user, Entry.date.between(a_day_30_days_ago, current_day)))
                         .group_by(Project.project_name)
                         .all()
                         )
@@ -45,15 +46,14 @@ def home():
             db.session.add(new_project)
             db.session.commit()
             flash('New project added!', category='success')
-    #else:
-        #flash('Project not added. Please, fill the fields correctly.', category='danger')
+
     return render_template("home.html", 
                             user = current_user,
                             project_form = project_form,
                             user_projects_labels = user_projects_labels, user_projects_data = user_projects_data,
                             no_entries_yet = no_entries_yet,
                             )
-
+# Individual page with a particular project data
 @views.route('project/<int:project_id>', methods=['GET', 'POST'])
 @login_required
 def project(project_id):
@@ -72,7 +72,7 @@ def project(project_id):
                         .group_by(Entry.date)
                         .order_by(Entry.date)
                         .all()
-    )
+                        )
     this_week_d =[]
     this_week_l =[]
     for minute, date in this_week_enries:
@@ -82,11 +82,11 @@ def project(project_id):
     this_week_data = json.dumps(this_week_d)
     this_week_labels = json.dumps(this_week_l)
     
-    # Getting data for a "this month" chart
-    a_month_ago = current_day - timedelta(days=30)
+    # Get data for a "Last 30 days" chart
+    a_day_30_days_ago = current_day - timedelta(days=30)
     this_month_enries = (db.session.query(db.func.sum(Entry.duration), Entry.date)
                         .join(Project)
-                        .filter(and_(Project.owner==current_user, Entry.project_id==project_id, Entry.date.between(a_month_ago, current_day)))
+                        .filter(and_(Project.owner==current_user, Entry.project_id==project_id, Entry.date.between(a_day_30_days_ago, current_day)))
                         .group_by(Entry.date)
                         .order_by(Entry.date)
                         .all()
@@ -101,7 +101,7 @@ def project(project_id):
     this_month_labels = json.dumps(this_month_l)
 
     
-    # Getting data for a "last 12weeks" chart
+    # Get data for a "Last 12 weeks" chart
     next_monday = current_day - timedelta(days=current_day.weekday()) + timedelta(days=7) 
     a_monday_84_days_ago = next_monday - timedelta(days=84)
     these_12weeks_entries = []
@@ -119,72 +119,29 @@ def project(project_id):
         raw_these_12weeks_d.append(round((minute / 60),1))
         raw_week_of_year_for_data.append([week,year])
     week_of_year_for_data = raw_week_of_year_for_data.copy()
-
-        
-    # print('Current week:')
-    # print(current_day.isocalendar()[1])
-    # print('week_of_year_for_data length:')
-    # print(len(week_of_year_for_data))
-    # print('week_of_year_for_data :')
-    # print(week_of_year_for_data)
-    print('------------------------------------------------')
-
             
-    # get labels for last 12 weeks
+    # Get 12 labels for "Last 12 weeks" chart
     last_monday = current_day - timedelta(days=current_day.weekday())
     reversed_12weeks_l = [last_monday.strftime("%b %e") + ' - ' + (last_monday + timedelta(days=6)).strftime("%b %e")]
     for week in range(1,12):
         reversed_12weeks_l.append((last_monday - timedelta(days = 7 * week)).strftime("%b %e") + ' - ' + (last_monday - timedelta(days =7 * week) + timedelta(days=6)).strftime("%b %e"))
     reversed_12weeks_l.reverse()
     these_12weeks_l = reversed_12weeks_l.copy()
-    # print(last_monday.strftime("%b %e"))
-    # print('len(these_12weeks_l):')
-    # print(len(these_12weeks_l))
-    # print('these_12weeks_l:')
-    # print(these_12weeks_l)
-    # print('------------------------------------------------')
-    
-    # get numbers of weeks and years (of weeks in array) of the labels
+
+    # Get numbers of weeks and years (of weeks in array) of those 12 labels got above
     week_of_year_for_labels = [[last_monday.isocalendar()[1], last_monday.isocalendar()[0]]]
     for week in range(1, len(these_12weeks_l)):
         week_of_year_for_labels.append([(last_monday - timedelta(days = 7 * week)).isocalendar()[1], (last_monday - timedelta(days = 7 * week)).isocalendar()[0]])
     week_of_year_for_labels.reverse()
-    # print('week_of_year_for_labels length:')
-    # print(len(week_of_year_for_labels))
-    # print('week_of_year_for_labels:')
-    # print(week_of_year_for_labels)
-    # print('------------------------------------------------')
     
-    # adjust data-set according to it's week labels (creating 12-element "these_12weeks_d" list, even if originally some data skipped)
-    # if there is no data in db for some weeks among those last 12
-    buff_data_list = []
-    for i, d_element in enumerate(week_of_year_for_data):
-        if week_of_year_for_data.index(d_element) == week_of_year_for_labels.index(d_element):
-            buff_data_list.append(raw_these_12weeks_d[i])
-        else:
-            for j, l_element in enumerate(week_of_year_for_labels):
-                if d_element == l_element:
-                    for k in range(len(buff_data_list), j):
-                        buff_data_list.append(0)
-                    buff_data_list.append(raw_these_12weeks_d[i])
-                    
-    if len(week_of_year_for_labels) > len(buff_data_list) and buff_data_list != []:
-        for i in range(len(buff_data_list), len(week_of_year_for_labels)):
-            buff_data_list.append(0)
-    these_12weeks_d = buff_data_list.copy()
-    print('raw_these_12weeks_d length :')
-    print(len(raw_these_12weeks_d))
-    print(raw_these_12weeks_d)
-    print('------------------------------------------------')
-    print('these_12weeks_d length (missed week(s) added):')
-    print(len(these_12weeks_d))
-    print(these_12weeks_d)
-    print('------------------------------------------------')
+    # Adjust data-set according to it's week labels by ading zeros to the weeks without data:
+    these_12weeks_d = adjust_data(week_of_year_for_data, raw_these_12weeks_d, week_of_year_for_labels)
     
-    
-    # Hours per week Goal (shows at "This 12weeks" chart)
     week_goal = 0
+    # If hours per week Goal set(shows at "Last 12 Weeks" chart), additional data needed:
+    # 1. Get the ideal expected progress line on the chart
     these_12weeks_d_goal = []
+    # 2. Get the actual user progress line on the same chart
     these_12weeks_p = []
     if current_project.goal:
         goal = True
@@ -198,19 +155,15 @@ def project(project_id):
             these_12weeks_p.append(these_12weeks_d[week] + these_12weeks_p[week - 1])
             these_12weeks_d_goal.append(week_goal*(week+1))
     else: goal = False
-    # print('these_12weeks_d_goal length:')
-    # print(len(these_12weeks_d_goal))
-    # print('these_12weeks_d_goal:')
-    # print(these_12weeks_d_goal)
 
-    # pass data to html
+    # Pass all the data related to "Last 12 Weeks" chart to html
     these_12weeks_labels = json.dumps(these_12weeks_l)
     these_12weeks_data = json.dumps(these_12weeks_d)
     these12weeks_summ_hours = round(sum(these_12weeks_d),1)
     these_12weeks_progress = json.dumps(these_12weeks_p)
     these_12weeks_data_goal = json.dumps(these_12weeks_d_goal)    
     
-    # Getting data for a "this year" chart
+    # Get data for a "This Year" chart
     year_now = datetime.now().year
     this_year_entries = (db.session.query(func.sum(Entry.duration), Entry.date)
                         .join(Project)
@@ -228,7 +181,7 @@ def project(project_id):
     this_year_data = json.dumps(this_year_d)
     this_year_labels = json.dumps(this_year_l)
     
-    # Getting data for a "all time" chart
+    # Gett data for a "All time" chart
     alltime_entries = (db.session.query(func.sum(Entry.duration), Entry.date)
                         .join(Project)
                         .filter(and_(Project.owner==current_user, Entry.project_id==project_id))
@@ -244,6 +197,7 @@ def project(project_id):
     alltime_summ_hours = round(sum(alltime_d),1)
     alltime_data = json.dumps(alltime_d)
     alltime_labels = json.dumps(alltime_l)
+    
     return render_template("project.html",
                             user = current_user, project_id = current_project.id,
                             name = current_project.project_name, notes = current_project.notes, week_goal = week_goal,
@@ -267,32 +221,8 @@ def project(project_id):
                             alltime_summ_hours = alltime_summ_hours
                             )
 
-@views.route('project/<int:project_id>/delete', methods=['POST'])
-@login_required
-def delete_project(project_id):
-    current_project = Project.query.filter(Project.id==project_id, Project.owner==current_user).first_or_404()
-    if current_project.owner != current_user:
-        abort(403)
-    current_project_entries=Entry.query.filter(Entry.project_id==project_id).all()
-    for entry in current_project_entries:
-        db.session.delete(entry)
-    db.session.delete(current_project)
-    db.session.commit()
-    flash(f'Project "{current_project.project_name} has been deleted!', category='success')
-    return redirect(url_for('views.home'))
 
-@views.route('project/delete/<int:entry_id>')
-@login_required
-def delete_entry(entry_id):
-    current_entry = Entry.query.join(Project).filter(and_(Entry.id==entry_id, Project.owner==current_user)).first_or_404(entry_id)
-    db.session.delete(current_entry)
-    db.session.commit()
-    plural = ''
-    if current_entry.duration != 1:
-            plural = 's'
-    flash(f'{current_entry.duration} minute{plural} has been deleted!', category='success')
-    return redirect(url_for('views.project', project_id=current_entry.project_id))
-
+# Page for adding working time to a project manually or using timer (stop watch)
 @views.route('project/<int:project_id>/addtime', methods=['GET','POST'])
 @login_required
 def add_time(project_id):
@@ -311,6 +241,7 @@ def add_time(project_id):
         return redirect(url_for('views.project', project_id=current_project.id))
     return render_template('addtime.html', user = current_user, project_id=current_project.id, entry_form=entry_form)
 
+# Page for editing a project
 @views.route('project/<int:project_id>/edit', methods=['GET','POST'])
 @login_required
 def edit_project(project_id):
@@ -330,6 +261,35 @@ def edit_project(project_id):
         edit_project_form.notes.data = current_project.notes
         edit_project_form.goal.data = current_project.goal
     return render_template('edit_project.html', user = current_user, project_id=current_project.id, edit_project_form=edit_project_form)
+
+# Url for deleting a project
+@views.route('project/<int:project_id>/delete', methods=['POST'])
+@login_required
+def delete_project(project_id):
+    current_project = Project.query.filter(Project.id==project_id, Project.owner==current_user).first_or_404()
+    if current_project.owner != current_user:
+        abort(403)
+    current_project_entries=Entry.query.filter(Entry.project_id==project_id).all()
+    for entry in current_project_entries:
+        db.session.delete(entry)
+    db.session.delete(current_project)
+    db.session.commit()
+    flash(f'Project "{current_project.project_name} has been deleted!', category='success')
+    return redirect(url_for('views.home'))
+
+# Url for deleting an entry
+@views.route('project/delete/<int:entry_id>')
+@login_required
+def delete_entry(entry_id):
+    current_entry = Entry.query.join(Project).filter(and_(Entry.id==entry_id, Project.owner==current_user)).first_or_404(entry_id)
+    db.session.delete(current_entry)
+    db.session.commit()
+    plural = ''
+    if current_entry.duration != 1:
+            plural = 's'
+    flash(f'{current_entry.duration} minute{plural} has been deleted!', category='success')
+    return redirect(url_for('views.project', project_id=current_entry.project_id))
+
 
 def send_reset_mail(user):
     token = user.get_token()

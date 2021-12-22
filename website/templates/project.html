@@ -4,7 +4,7 @@
 {% endblock %}
 
 {% block content %}
-    <section class="container" id="greet">
+    <section class="container d-flex flex-wrap">
         <div class="container col-md-8">
             <div class="text-center">
                 <h2>{{ name }}</h2>
@@ -99,30 +99,31 @@
                     </div>
                 </div>         
         </div>
-    </section>
 
-<!-- 5 last entries -->
-<div class="container my-3 col-md-6 text-center">
-    <h4>Last Entries</h4>
-    <table class="table table-hover">
-        <thead>
-            <tr class="table-light">
-                <th scope="col">Date</th>
-                <th scope="col">Minutes</th>
-                <th scope="col"></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for entry in last5 %}
-            <tr>
-                <td>{{ entry.date.strftime("%B %d, %Y") }}</td>
-                <td>{{ entry.duration }}</td>
-                <td><a href="{{ url_for('views.delete_entry', entry_id=entry.id) }}" class="btn btn-outline-danger btn-sm">Delete</a></td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+    <!-- 5 last entries -->
+    <div class="container my-3 col-md-6 text-center">
+        <h4>Last Entries</h4>
+        <table class="table table-hover">
+            <thead>
+                <tr class="table-light">
+                    <th scope="col">Date</th>
+                    <th scope="col">Minutes</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in last5 %}
+                <tr>
+                    <td>{{ entry.date.strftime("%B %d, %Y") }}</td>
+                    <td>{{ entry.duration }}</td>
+                    <td><a href="{{ url_for('views.delete_entry', entry_id=entry.id) }}" class="btn btn-outline-danger btn-sm">Delete</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
 
 
 {% block javascript %}
