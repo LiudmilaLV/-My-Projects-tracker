@@ -4,11 +4,14 @@
 {% endblock %}
 
 {% block content %}
-    <section class="container" id="greet">
+    <section class="container d-flex flex-wrap">
         <div class="container col-md-8">
             <div class="text-center">
-                <h1>{{ name }}</h1>
-                <h4 class="text-primary">{{ notes }}</h4>
+                <h2>{{ name }}</h2>
+                <h5 class="text-primary">{{ notes }}</h5>
+                {% if goal %}
+                    <h5 class="text-primary">My goal is <b>{{ week_goal }} hours a week.</b></h5>
+                {% endif%}
             </div>
                 <ul class="nav nav-pills mb-2" id="pills-tab" role="tablist">
                     <li class="nav-item" role="presentation">
@@ -18,7 +21,7 @@
                         <button class="nav-link" id="pills-last30-tab" data-bs-toggle="pill" data-bs-target="#pills-last30" type="button" role="tab" aria-controls="pills-last30" aria-selected="false">Last 30 Days</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="pills-this-quarter-tab" data-bs-toggle="pill" data-bs-target="#pills-this-quarter" type="button" role="tab" aria-controls="pills-this-quarter" aria-selected="true">This Quarter</button>
+                        <button class="nav-link" id="pills-this-12weeks-tab" data-bs-toggle="pill" data-bs-target="#pills-this-12weeks" type="button" role="tab" aria-controls="pills-this-12weeks" aria-selected="true">Last 12 Weeks</button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="pills-this-year-tab" data-bs-toggle="pill" data-bs-target="#pills-this-year" type="button" role="tab" aria-controls="pills-this-year" aria-selected="false">This Year</button>
@@ -29,7 +32,7 @@
                 </ul>
                 <div class="tab-content" id="pills-tabContent">
                     <div class="tab-pane fade show active" id="pills-this-week" role="tabpanel" aria-labelledby="pills-this-week-tab">
-                        <p>This week you've spent <b>{{ thisweek_summ_hours }} hours</b> on this project.</p>
+                        <p>This week ({{ current_week }}) you spent <b>{{ thisweek_summ_hours }} hours</b> on this project.</p>
                         <!-- This week chart -->
                         <div class="card my-3">
                             <div class="card-body">
@@ -50,16 +53,27 @@
                             </div>    
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="pills-this-quarter" role="tabpanel" aria-labelledby="pills-this-quarter-tab">
-                        <p>This quarter you've spent <b>{{ thisquarter_summ_hours }} hours</b> on this project.</p>
-                        <!-- This Quarter chart -->
+                    <div class="tab-pane fade" id="pills-this-12weeks" role="tabpanel" aria-labelledby="pills-this-12weeks-tab">
+                        <p>Last 12 weeks you've spent <b>{{ these12weeks_summ_hours }} hours</b> on this project.</p>
+                        {% if goal %}
+                        <!-- This 12 weeks chart with goal scoreboard -->
                         <div class="card my-3">
                             <div class="card-body">
                                 <div class="chart">
-                                    <canvas id="this_quarter_chart"></canvas>
+                                    <canvas id="these_12weeks_chart"></canvas>
                                 </div>
                             </div>    
                         </div>
+                        {% else %}
+                        <!-- This 12 weeks chart without goal scoreboard -->
+                        <div class="card my-3">
+                            <div class="card-body">
+                                <div class="chart">
+                                    <canvas id="these_12weeks_chart_nogoal"></canvas>
+                                </div>
+                            </div>    
+                        </div>
+                        {% endif %}
                     </div>
                     <div class="tab-pane fade" id="pills-this-year" role="tabpanel" aria-labelledby="pills-this-year-tab">
                         <p>This year you've spent <b>{{ thisyear_summ_hours }} hours</b> on this project.</p>
@@ -85,66 +99,91 @@
                     </div>
                 </div>         
         </div>
-    </section>
 
-        <!-- 5 last entries -->
-        <div class="container my-3 col-md-6 text-center">
-            <h4>Last Entries</h4>
-            <table class="table table-hover">
-                <thead>
-                    <tr class="table-light">
-                        <th scope="col">Date</th>
-                        <th scope="col">Minutes</th>
-                        <th scope="col"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for entry in last5 %}
-                    <tr>
-                        <td>{{ entry.date.strftime("%B %d, %Y") }}</td>
-                        <td>{{ entry.duration }}</td>
-                        <td><a href="{{ url_for('views.delete_entry', entry_id=entry.id) }}" class="btn btn-outline-danger btn-sm">Delete</a></td>
-                    </tr>
-                    <!-- Modal for Deleting an Entry -->
-                    <!-- <div class="modal fade" id="deleteEntryModal" tabindex="-1" aria-labelledby="deleteEntryModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="deleteEntryModalLabel">Delete this Entry?</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <p>Date: {{ entry.date.strftime("%B %d, %Y") }}</p>
-                                    <p>Minutes: {{ entry.duration }}</p>                                  
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <form action="{{ url_for('views.delete_entry', entry_id=entry.id) }}" method="POST">
-                                        <input class="btn btn-danger" type="submit" value="Delete">
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div> -->
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+    <!-- 5 last entries -->
+    <div class="container my-3 col-md-6 text-center">
+        <h4>Last Entries</h4>
+        <table class="table table-hover">
+            <thead>
+                <tr class="table-light">
+                    <th scope="col">Date</th>
+                    <th scope="col">Minutes</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in last5 %}
+                <tr>
+                    <td>{{ entry.date.strftime("%B %d, %Y") }}</td>
+                    <td>{{ entry.duration }}</td>
+                    <td><a href="{{ url_for('views.delete_entry', entry_id=entry.id) }}" class="btn btn-outline-danger btn-sm">Delete</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
 
 
 {% block javascript %}
 <script>
 
-    let t_w_data = JSON.parse({{ this_week_data | tojson }})
-    let t_w_labels = JSON.parse({{ this_week_labels | tojson }})
-    let l30_data = JSON.parse({{ this_month_data | tojson }})
-    let l30_labels = JSON.parse({{ this_month_labels | tojson }})
-    let quarter_data = JSON.parse({{ this_quarter_data | tojson }})
-    let quarter_labels = JSON.parse({{ this_quarter_labels | tojson }})
-    let year_data = JSON.parse({{ this_year_data | tojson }})
-    let year_labels = JSON.parse({{ this_year_labels | tojson }})
-    let all_data = JSON.parse({{ alltime_data | tojson }})
-    let all_labels = JSON.parse({{ alltime_labels | tojson }})
+    let t_w_data = JSON.parse({{ this_week_data | tojson }});
+    let t_w_labels = JSON.parse({{ this_week_labels | tojson }});
+    let l30_data = JSON.parse({{ this_month_data | tojson }});
+    let l30_labels = JSON.parse({{ this_month_labels | tojson }});
+    let year_data = JSON.parse({{ this_year_data | tojson }});
+    let year_labels = JSON.parse({{ this_year_labels | tojson }});
+    let all_data = JSON.parse({{ alltime_data | tojson }});
+    let all_labels = JSON.parse({{ alltime_labels | tojson }});
+    const twelve_weeks_labels = JSON.parse({{ these_12weeks_labels | tojson }});
+    let twelve_weeks_data = JSON.parse({{ these_12weeks_data | tojson }}); 
+    let twelve_weeks_data_goal = JSON.parse({{ these_12weeks_data_goal | tojson }}); 
+    let twelve_weeks_progresss = JSON.parse({{ these_12weeks_progress | tojson }}); 
+
+    // 12 weeks chart with goal scoreboard
+    const g_tq_data = {
+        labels: twelve_weeks_labels,
+        datasets: [{
+            label: 'Your Progress',
+            data: twelve_weeks_progresss,
+            fill: false,
+            borderColor: 'rgb(52, 152, 219)',
+            backgroundColor: 'rgb(52, 152, 219)',
+            tension: 0.1
+        }, {
+            label: 'Your Goal',
+            data: twelve_weeks_data_goal,
+            fill: false,
+            borderColor: 'rgb(231, 76, 60)',
+            backgroundColor: 'rgb(231, 76, 60)',
+            tension: 0.1
+        }]
+    };
+    const g_tq_config = {
+        type: 'line',
+        data: g_tq_data,
+    };
+    const g_these_12weeks_chart = new Chart(document.getElementById('these_12weeks_chart'), g_tq_config);
+
+    // 12 weeks chart without goal scoreboard
+    const tq_data = {
+        labels: twelve_weeks_labels,
+        datasets: [{
+            label: 'Hours',
+            data: twelve_weeks_data,
+            fill: false,
+            borderColor: 'rgb(44, 62, 80)',
+            backgroundColor: 'rgb(44, 62, 80)',
+            tension: 0.1
+        }]
+    };
+    const tq_config = {
+        type: 'line',
+        data: tq_data,
+    };
+    const these_12weeks_chart = new Chart(document.getElementById('these_12weeks_chart_nogoal'), tq_config);
 
     // This week chart
     const tw_data = {
@@ -154,6 +193,7 @@
             data: t_w_data,
             fill: false,
             borderColor: 'rgb(44, 62, 80)',
+            backgroundColor: 'rgb(44, 62, 80)',
             tension: 0.1
         }]
     };
@@ -170,32 +210,16 @@
             label: 'Hours',
             data: l30_data,
             fill: false,
+            borderColor: 'rgb(117, 189, 187)',
             backgroundColor: 'rgb(117, 189, 187)',
             tension: 0.1
-        }]
+        },]
     };
     const l30_config = {
         type: 'bar',
         data: last30_data,
 };
     const this_month_chart = new Chart(document.getElementById('last30_chart'), l30_config);
-
-    // This quarter chart
-    const tq_data = {
-        labels: quarter_labels,
-        datasets: [{
-            label: 'Hours',
-            data: quarter_data,
-            fill: false,
-            backgroundColor: 'rgb(117, 189, 187)',
-            tension: 0.1
-        }]
-    };
-    const tq_config = {
-        type: 'bar',
-        data: tq_data,
-};
-    const this_quarter_chart = new Chart(document.getElementById('this_quarter_chart'), tq_config);
 
     // This year chart
     const ty_data = {

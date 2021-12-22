@@ -1,5 +1,6 @@
 .DS_Store
 env
 *.pyc
-website/database.db
+*.db
 notes.txt
+mytest1.py

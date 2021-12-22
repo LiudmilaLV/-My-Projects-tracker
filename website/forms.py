@@ -1,9 +1,10 @@
+from typing import Optional
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.fields.core import IntegerField
 from wtforms.fields.html5 import DateField
 from wtforms.fields.simple import HiddenField, PasswordField
-from wtforms.validators import DataRequired, EqualTo, Length, Email, ValidationError, NumberRange
+from wtforms.validators import DataRequired, EqualTo, Length, Email, ValidationError, NumberRange, Optional
 from datetime import datetime
 from .models import User
 from . import db
@@ -18,12 +19,12 @@ class RegistrationForm(FlaskForm):
     def validate_name(self, name):
         user = User.query.filter_by(name=name.data).first()
         if user:
-            raise ValidationError('This name is already taken. Please choose another name.')
+            raise ValidationError('This name is already taken. Please, choose another name.')
         
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
         if user:
-            raise ValidationError('This name is already taken. Please choose another name.')
+            raise ValidationError('This email is already taken. Please, choose another name.')
     
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
@@ -33,7 +34,8 @@ class LoginForm(FlaskForm):
     
 class AddProjectForm(FlaskForm):
     project_name = StringField('Project Name', validators=[DataRequired(), Length(min=1, max=30)])
-    notes = StringField('Notes (optional)', default='(My goal is 10 hours a week)')
+    goal = IntegerField('My Goal (hours a week, optional)', render_kw={"placeholder": "10"}, validators=[Optional()])
+    notes = StringField('Notes (optional)', render_kw={"placeholder": "description"})
     submit = SubmitField('Add New Project')
     
 class EntryForm(FlaskForm):
@@ -44,7 +46,8 @@ class EntryForm(FlaskForm):
 
 class EditProjectForm(FlaskForm):
     project_name = StringField('Edit Project Name', validators=[DataRequired(), Length(min=1, max=30)])
-    notes = StringField('Edit Notes (optional)')
+    goal = IntegerField('My Goal (hours a week, optional)', render_kw={"placeholder": "10"}, validators=[Optional()])
+    notes = StringField('Notes (optional)', render_kw={"placeholder": "description"})
     submit = SubmitField('Submit Changes')
     
 class ResetRequestForm(FlaskForm):

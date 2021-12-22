@@ -44,12 +44,15 @@
         <div class="container my-3 col-md-4 center">
             <div class="container">
                 <!-- <h2 class="text-center">Use Timer</h2> -->
-                <h2 class="time text-center my-3">00:00:00</h2>             
+                <h1 class="time text-center my-3">00:00:00</h1>           
             </div>
             <div class="d-flex justify-content-evenly">
                 <button id="btn-start" type="button" class="btn btn-primary m-2 col-sm-3 px-1">Start</button>
                 <button id="btn-stop" type="button" class="btn btn-primary m-2 col-sm-3 px-1">Stop</button>
                 <button id="btn-reset" type="button" class="btn btn-primary m-2 col-sm-3 px-1">Reset</button>
+            </div>
+            <div class="container my-3">
+                <p id="warn"></p>
             </div>
         </div>
     </div>
@@ -61,6 +64,7 @@
         const buttonStop = document.getElementById('btn-stop');
         const buttonReset = document.getElementById('btn-reset');
         const durationField = document.getElementById('duration');
+        const warnMessage = document.getElementById('warn')
     
         let seconds = 0;
         let interval = null;
@@ -85,6 +89,7 @@
         }
     
         function start () {
+            warnMessage.innerText = '';
             if (interval) {
                 return
             }
@@ -97,12 +102,16 @@
             if (seconds > 60) {
                 durationField.value = seconds;
             }
+            else {
+                warnMessage.innerText = 'You can not add less than a minute.';
+            }
         }
     
         function reset () {
             stop();
             seconds = 0;
             time_el.innerText = '00:00:00';
+            warnMessage.innerText = '';
         }
     </script>
 {% endblock %}

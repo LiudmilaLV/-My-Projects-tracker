@@ -17,13 +17,13 @@
     </div>
     {% else %} 
     <!-- If User has projects -->
-    <div class="row d-flex flex-wrap justify-content-evenly">
-        <div class="col-md-5">
+    <div class="row d-flex flex-wrap justify-content-around">
+        <div class="col-md-6">
             <div class="display-2 my-3 mt-5">Hi, {{user.name}}!</div>
             <h3 class="my-3">Your projects:</h3>
-            <div class="d-flex flex-wrap justify-content-between">
+            <div class="d-flex flex-wrap justify-content-evenly">
                 {% for project in user.projects %}
-                <div class="btn mb-2 btn-outline-primary btn-lg">
+                <div class="btn btn-primary btn-lg">
                     <a href="{{ url_for('views.project', project_id=project.id) }}">
                         {{project.project_name}}
                     </a>
@@ -32,17 +32,22 @@
             </div>
         </div>
         <div class="my-3 col-md-5">
+            {% if no_entries_yet %}
+                <h4 class="text-center">Here will be your progress data.</h4>
+                <h6 class="text-center">Select a project and add some time to it!</h6>                
+            {% else %}
             <h4 class="text-center">Last 30 Days Progress:</h4>
             <!-- Pie Chart -->
             <div class="chart my-3">
                 <canvas id="projects_pie"></canvas>
             </div>
+            {% endif %}
         </div>
     {% endif %}
     
 
 
-    <div class="container my-3 col-md-6" id="addproject">
+    <div class="container my-5 col-md-6" id="addproject">
         <form method="POST" action="#">
             {{ project_form.hidden_tag() }}
             <fieldset class="form-group">
@@ -58,6 +63,19 @@
                         </div>
                     {% else %}
                         {{ project_form.project_name(class="form-control") }}
+                    {% endif %} 
+                </div>
+                <div class="form-group">
+                    {{ project_form.goal.label(class="form-label mt-4") }}
+                    {% if project_form.goal.errors %}
+                        {{ project_form.goal(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in project_form.goal.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ project_form.goal(class="form-control") }}
                     {% endif %} 
                 </div>
                 <div class="form-group">
@@ -92,7 +110,6 @@
     data: u_p_data,
     backgroundColor: [
         'rgb(24, 188, 156)',
-        'rgb(127, 140, 141)',
         'rgb(243, 156, 18)',
         'rgb(37, 53, 68)',
         'rgb(231, 77, 60)',
