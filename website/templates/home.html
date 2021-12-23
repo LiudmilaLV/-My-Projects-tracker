@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block content %}
-<section class="container">        
+<section class="container py-3 min-vh-100">        
     {% if not user.projects %}
     <!-- If User does'n have any projects-->
     <div class="row d-flex flex-wrap justify-content-evenly">
@@ -31,7 +31,7 @@
                 {% endfor %}
             </div>
         </div>
-        <div class="my-3 col-md-5">
+        <div class="col-md-5">
             {% if no_entries_yet %}
                 <h4 class="text-center">Here will be your progress data.</h4>
                 <h6 class="text-center">Select a project and add some time to it!</h6>                
@@ -47,7 +47,7 @@
     
 
 
-    <div class="container my-5 col-md-6" id="addproject">
+    <div class="container my-5 py-5 col-md-6" id="addproject">
         <form method="POST" action="#">
             {{ project_form.hidden_tag() }}
             <fieldset class="form-group">
@@ -99,6 +99,13 @@
         </form>
     </div>
 </section>
+
+<div class="container-fluid navbar fixed-bottom mt-auto bg-primary text-white">
+    <div class="container col-md-4 center">
+        <h6 class="text-center">yourprojecttracker@gmail.com</h6>
+    </div>
+</div>
+
 {% block javascript %}
 <script>
     let u_p_labels = JSON.parse({{ user_projects_labels | tojson }})
@@ -116,12 +123,20 @@
         'rgb(52, 152, 219)',
         'rgb(213, 218, 219)'
     ],
-    hoverOffset: 10
+    hoverOffset: 8
     }]
     };
     const pie_config = {
         type: 'pie',
         data: pie_data,
+        options: {
+        plugins: {
+            subtitle: {
+                display: true,
+                text: 'Hours you spent working on'
+            }
+        }
+    }
         };
 
     const projects_pie_chart = new Chart(document.getElementById('projects_pie'), pie_config);

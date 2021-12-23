@@ -27,9 +27,9 @@ def home():
                         )
     user_projects_l = []
     user_projects_d = []
-    for project_name, project_duration in recent_projects:
+    for project_name, minutes in recent_projects:
         user_projects_l.append(project_name)
-        user_projects_d.append(project_duration)
+        user_projects_d.append(round((minutes / 60),1))
     no_entries_yet = True
     if user_projects_d:
         no_entries_yet = False
