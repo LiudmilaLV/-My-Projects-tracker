@@ -13,10 +13,11 @@ from datetime import datetime, timedelta
 
 views = Blueprint('views', __name__)
 
+
 @views.route('/', methods=['GET', 'POST']) 
 @login_required
 def home():
-    # Getting data for pie-chart(recent projects)
+    # Get data for pie-chart (for last 30 days projects)
     current_day = datetime.utcnow().date()
     a_day_30_days_ago = current_day - timedelta(days=30)
     recent_projects = (db.session.query(Project.project_name, db.func.sum(Entry.duration))
@@ -36,6 +37,7 @@ def home():
     user_projects_labels = json.dumps(user_projects_l)
     user_projects_data = json.dumps(user_projects_d)
     
+    # Get data from "Add new project form", if the button pressed = POST request sent
     project_form = AddProjectForm()
     if project_form.validate_on_submit():    
         user = Project.query.filter(Project.project_name==project_form.project_name.data, Project.user_id==current_user.id).first()
@@ -53,17 +55,22 @@ def home():
                             user_projects_labels = user_projects_labels, user_projects_data = user_projects_data,
                             no_entries_yet = no_entries_yet,
                             )
+
+
 # Individual page with a particular project data
 @views.route('project/<int:project_id>', methods=['GET', 'POST'])
 @login_required
 def project(project_id):
+    # Check page accessibility rights
     current_project = Project.query.filter(Project.id==project_id, Project.owner==current_user).first_or_404()
     if current_project.owner != current_user:
         abort(403)
+        
+    # Get last 5 queries made by the user to show in a table on the page
     last5 = Entry.query.join(Project).filter(and_(Entry.project_id==current_project.id, Project.owner==current_user)).order_by(Entry.timestamp.desc()).limit(5).all()
     current_day = datetime.now().date()
     
-    # Getting data for a "this week" chart
+    # Get data for a "this week" chart
     last_monday = current_day - timedelta(days=current_day.weekday())
     current_week = last_monday.strftime("%b %e") + ' - ' + (last_monday + timedelta(days = 6)).strftime("%b %e")
     this_week_enries = (db.session.query(db.func.sum(Entry.duration), Entry.date)
@@ -101,7 +108,7 @@ def project(project_id):
     this_month_labels = json.dumps(this_month_l)
 
     
-    # Get data for a "Last 12 weeks" chart
+    # Get data for a "Last 12 weeks" chart from database 
     next_monday = current_day - timedelta(days=current_day.weekday()) + timedelta(days=7) 
     a_monday_84_days_ago = next_monday - timedelta(days=84)
     these_12weeks_entries = []
@@ -120,7 +127,7 @@ def project(project_id):
         raw_week_of_year_for_data.append([week,year])
     week_of_year_for_data = raw_week_of_year_for_data.copy()
             
-    # Get 12 labels for "Last 12 weeks" chart
+    # Get 12 labels for "Last 12 weeks" chart, counting from current week Monday
     last_monday = current_day - timedelta(days=current_day.weekday())
     reversed_12weeks_l = [last_monday.strftime("%b %e") + ' - ' + (last_monday + timedelta(days=6)).strftime("%b %e")]
     for week in range(1,12):
@@ -128,13 +135,13 @@ def project(project_id):
     reversed_12weeks_l.reverse()
     these_12weeks_l = reversed_12weeks_l.copy()
 
-    # Get numbers of weeks and years (of weeks in array) of those 12 labels got above
+    # Get numbers of weeks and years of those 12 labels got above
     week_of_year_for_labels = [[last_monday.isocalendar()[1], last_monday.isocalendar()[0]]]
     for week in range(1, len(these_12weeks_l)):
         week_of_year_for_labels.append([(last_monday - timedelta(days = 7 * week)).isocalendar()[1], (last_monday - timedelta(days = 7 * week)).isocalendar()[0]])
     week_of_year_for_labels.reverse()
     
-    # Adjust data-set according to it's week labels by ading zeros to the weeks without data:
+    # Adjust data-set according to it's week labels by ading zeros to the skipped weeks without data:
     these_12weeks_d = adjust_data(week_of_year_for_data, raw_these_12weeks_d, week_of_year_for_labels)
     
     week_goal = 0
@@ -290,7 +297,7 @@ def delete_entry(entry_id):
     flash(f'{current_entry.duration} minute{plural} has been deleted!', category='success')
     return redirect(url_for('views.project', project_id=current_entry.project_id))
 
-
+# Email with a link for changing a password
 def send_reset_mail(user):
     token = user.get_token()
     msg = Message('Password Reset Request', sender='yourprojecttracker@gmail.com', recipients=[user.email])
@@ -301,6 +308,7 @@ If you did not make this password reset request, please ignore this email.
 '''
     mail.send(msg)
 
+# Page for requesting password reset
 @views.route('/reset_password', methods=['GET', 'POST'])
 def reset_request():
     if current_user.is_authenticated:
@@ -314,6 +322,7 @@ def reset_request():
             return redirect(url_for('auth.login'))
     return render_template('reset_request.html', form=form)
 
+# Page user get by the link in the email, changing password
 @views.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_token(token):
     if current_user.is_authenticated:

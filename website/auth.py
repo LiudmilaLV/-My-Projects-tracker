@@ -7,6 +7,7 @@ from .forms import RegistrationForm, LoginForm
 
 auth = Blueprint('auth', __name__)
 
+# Get data via sing-up form for creating a new user
 @auth.route('/sign_up', methods=['GET','POST'])
 def sign_up():
     if current_user.is_authenticated:
@@ -22,6 +23,7 @@ def sign_up():
         return redirect(url_for('views.home'))
     return render_template('sign_up.html', form=form)
 
+# Implementation of login function
 @auth.route('/login', methods=['GET','POST'])
 def login():
     if current_user.is_authenticated:
@@ -37,6 +39,7 @@ def login():
             flash('Login unsuccessful. Please check email and password', category='warning')    
     return render_template('login.html', form=form, user=current_user)
 
+# Logout user
 @auth.route('/logout')
 @login_required
 def logout():

@@ -2,6 +2,8 @@ from flask import Blueprint, render_template
 
 errors = Blueprint('errors', __name__)
 
+# Custom error pages
+
 @errors.app_errorhandler(405)
 def error_404(error):
     return render_template('errors/405.html'), 405

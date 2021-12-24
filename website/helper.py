@@ -1,8 +1,8 @@
 
 """ 
 creating 12-element "these_12weeks_d" list, even if "raw_these_12weeks_d" is shorter,
-when originally some data skipped
-and there is no data in db for some weeks among those last 12
+when originally some data skipped by user
+and there is no data in db for those skipped weeks among those last 12
 """
 def adjust_data(week_of_year_for_data, raw_these_12weeks_d, week_of_year_for_labels):
     buff_data_list = []

@@ -3,7 +3,7 @@
 {% block content %}
 <section class="container py-3 min-vh-100">        
     {% if not user.projects %}
-    <!-- If User does'n have any projects-->
+    <!-- If User doesn't have any projects yet -->
     <div class="row d-flex flex-wrap justify-content-evenly">
         <div class="col-md-5 my-5">
             <h1 class="text-primary">Hi, {{user.name}}!</h1>
@@ -46,12 +46,10 @@
     {% endif %}
     
 
-
     <div class="container my-5 py-5 col-md-6" id="addproject">
         <form method="POST" action="#">
             {{ project_form.hidden_tag() }}
             <fieldset class="form-group">
-                <!-- <legend>Add a New Project</legend> -->
                 <div class="form-group">
                     {{ project_form.project_name.label(class="form-label mt-4") }}
                     {% if project_form.project_name.errors %}
@@ -102,7 +100,7 @@
 
 <div class="container-fluid navbar fixed-bottom bg-primary text-white justify-content-center">
     <h6 class="px-3">yourprojecttracker@gmail.com</h6>
-    <p><a href="https://github.com/LiudmilaLV/Your_Project_Tracker"><img class="img-fluid" src="{{ url_for('static', filename='GitHub.png') }}" alt="github logo" style="width:28px; height:28px;"></a></p>
+    <p><a href="https://github.com/LiudmilaLV"><img class="img-fluid" src="{{ url_for('static', filename='GitHub.png') }}" alt="github logo" style="width:28px; height:28px;"></a></p>
 </div>
 
 {% block javascript %}

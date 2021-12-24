@@ -56,7 +56,7 @@
                 <div class="tab-pane fade" id="pills-this-12weeks" role="tabpanel" aria-labelledby="pills-this-12weeks-tab">
                     <p class="text-center">Last 12 weeks you spent <b>{{ these12weeks_summ_hours }} hours</b> working on this project.</p>
                     {% if goal %}
-                    <!-- This 12 weeks chart with goal scoreboard -->
+                    <!-- This 12 weeks chart with goal "scoreboard" -->
                     <div class="card my-3">
                         <div class="card-body">
                             <div class="chart">
@@ -65,7 +65,7 @@
                         </div>    
                     </div>
                     {% else %}
-                    <!-- This 12 weeks chart without goal scoreboard -->
+                    <!-- This 12 weeks chart without no weekly goal set -->
                     <div class="card my-3">
                         <div class="card-body">
                             <div class="chart">
@@ -166,7 +166,7 @@
     };
     const g_these_12weeks_chart = new Chart(document.getElementById('these_12weeks_chart'), g_tq_config);
 
-    // 12 weeks chart without goal scoreboard
+    // 12 weeks chart without no weekly goal set
     const tq_data = {
         labels: twelve_weeks_labels,
         datasets: [{
