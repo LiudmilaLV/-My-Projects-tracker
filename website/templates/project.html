@@ -7,11 +7,8 @@
 <section class="d-flex flex-column py-1">
     <div class="container col-md-8">
         <div class="text-center">
-            <h3>{{ name }}</h3>
-            <h6 class="text-primary">{{ notes }}</h6>
-            {% if goal %}
-                <p class="text-primary">My goal is <b>{{ week_goal }} hours a week.</b></p>
-            {% endif%}
+            <h4 class="mt-2">{{ name }}</h4>
+            <p>{{ notes }}</p>
         </div>
             <ul class="nav nav-pills mb-2 justify-content-center" id="pills-tab" role="tablist">
                 <li class="nav-item" role="presentation">
@@ -54,7 +51,7 @@
                     </div>
                 </div>
                 <div class="tab-pane fade" id="pills-this-12weeks" role="tabpanel" aria-labelledby="pills-this-12weeks-tab">
-                    <p class="text-center">Last 12 weeks you spent <b>{{ these12weeks_summ_hours }} hours</b> working on this project.</p>
+                    <p class="text-center">Last 12 weeks you spent <b>{{ these12weeks_summ_hours }} hours</b> working on this project. {% if goal %}The goal is <b>{{ week_goal }} hours a week.{% endif%}</b></p>
                     {% if goal %}
                     <!-- This 12 weeks chart with goal "scoreboard" -->
                     <div class="card my-3">

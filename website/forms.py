@@ -34,7 +34,7 @@ class LoginForm(FlaskForm):
     
 class AddProjectForm(FlaskForm):
     project_name = StringField('Project Name', validators=[DataRequired(), Length(min=1, max=30)])
-    goal = IntegerField('My Goal (hours a week, optional)', render_kw={"placeholder": "10"}, validators=[Optional()])
+    goal = IntegerField('Weekly Goal (optional)', render_kw={"placeholder": "10"}, validators=[Optional()])
     notes = StringField('Notes (optional)', render_kw={"placeholder": "description"})
     submit = SubmitField('Add New Project')
     
@@ -46,7 +46,7 @@ class EntryForm(FlaskForm):
 
 class EditProjectForm(FlaskForm):
     project_name = StringField('Edit Project Name', validators=[DataRequired(), Length(min=1, max=30)])
-    goal = IntegerField('My Goal (hours a week, optional)', render_kw={"placeholder": "10"}, validators=[Optional()])
+    goal = IntegerField('Weekly Goal (optional)', render_kw={"placeholder": "10"}, validators=[Optional()])
     notes = StringField('Notes (optional)', render_kw={"placeholder": "description"})
     submit = SubmitField('Submit Changes')
     
