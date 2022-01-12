@@ -24,4 +24,4 @@
 **/values.dev.yaml
 README.md
 env
-db/*
+website/db/*

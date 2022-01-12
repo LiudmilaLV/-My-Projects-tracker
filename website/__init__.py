@@ -7,7 +7,7 @@ from flask_login import LoginManager
 from flask_mail import Mail
 
 db = SQLAlchemy()
-DB_NAME = "/db/database.db"
+DB_NAME = "/app/website/db/database.db"
 
 bcrypt =Bcrypt()
 mail = Mail()

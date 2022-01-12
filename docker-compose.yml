@@ -2,13 +2,10 @@ version: '3.4'
 
 services:
   yourprojecttracker:
-    image: yourprojecttracker
-    build:
-      context: .
-      dockerfile: ./Dockerfile
+    image: ghcr.io/liudmilalv/your_project_tracker:latest
     env_file:
       - ./.env
     volumes:
-      - ./db/:/db/
+      - ./db/:/app/website/db/
     ports:
       - 5000:5000
