@@ -1,0 +1,14 @@
+version: '3.4'
+
+services:
+  yourprojecttracker:
+    image: yourprojecttracker
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    env_file:
+      - ./.env
+    volumes:
+      - ./db/:/db/
+    ports:
+      - 5000:5000

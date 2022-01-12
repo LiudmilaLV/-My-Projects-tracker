@@ -4,3 +4,6 @@ env
 *.db
 notes.txt
 mytest1.py
+.vscode
+.env
+db/*

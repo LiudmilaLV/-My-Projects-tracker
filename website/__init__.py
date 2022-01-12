@@ -7,7 +7,7 @@ from flask_login import LoginManager
 from flask_mail import Mail
 
 db = SQLAlchemy()
-DB_NAME = "database.db"
+DB_NAME = "/db/database.db"
 
 bcrypt =Bcrypt()
 mail = Mail()
@@ -51,7 +51,5 @@ def create_app():
     
 
 def create_database(app):
-    if not path.exists('website/' + DB_NAME):
+    if not path.exists(DB_NAME):
         db.create_all(app=app)
-
-    

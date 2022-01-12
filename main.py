@@ -1,7 +1,9 @@
+import os
 from website import create_app
 
 app = create_app()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    DEBUG = os.environ.get('DEBUG') == 'True'
+    app.run(debug=DEBUG)
     
