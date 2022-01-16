@@ -7,3 +7,4 @@ mytest1.py
 .vscode
 .env
 website/db/*
+!website/db/.empty
