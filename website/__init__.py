@@ -6,6 +6,15 @@ from os import path
 from flask_login import LoginManager
 from flask_mail import Mail
 
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
+
+sentry_sdk.init(
+    dsn=os.environ.get('SENTRY_DSN'),
+    integrations=[FlaskIntegration()],
+    traces_sample_rate=1.0
+)
+
 db = SQLAlchemy()
 DB_NAME = "/app/website/db/database.db"
 
