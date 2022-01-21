@@ -12,6 +12,8 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(100), nullable=False, unique=True)
     password = db.Column(db.String(100), nullable=False)
     name = db.Column(db.String(20), nullable=False)
+    confirmed = db.Column(db.Boolean)
+    confirmed_on = db.Column(db.DateTime)
     projects = db.relationship('Project', backref='owner')
     
     def get_token(self, expires_sec=600):

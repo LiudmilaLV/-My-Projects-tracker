@@ -4,7 +4,7 @@ from flask_login import login_required, current_user
 from .models import User, Project, Entry
 from . import db, mail, bcrypt
 from .forms import AddProjectForm, EditProjectForm, EntryForm, ResetRequestForm, ResetPasswordForm
-from .helper import adjust_data
+from .helper import adjust_data, check_confirmed
 from sqlalchemy import extract, and_
 from sqlalchemy.sql import func
 from flask_mail import Message
@@ -16,6 +16,7 @@ views = Blueprint('views', __name__)
 
 @views.route('/', methods=['GET', 'POST']) 
 @login_required
+@check_confirmed
 def home():
     # Get data for pie-chart (for last 30 days projects)
     current_day = datetime.utcnow().date()
@@ -60,6 +61,7 @@ def home():
 # Individual page with a particular project data
 @views.route('project/<int:project_id>', methods=['GET', 'POST'])
 @login_required
+@check_confirmed
 def project(project_id):
     # Check page accessibility rights
     current_project = Project.query.filter(Project.id==project_id, Project.owner==current_user).first_or_404()
@@ -232,6 +234,7 @@ def project(project_id):
 # Page for adding working time to a project manually or using timer (stop watch)
 @views.route('project/<int:project_id>/addtime', methods=['GET','POST'])
 @login_required
+@check_confirmed
 def add_time(project_id):
     current_project = Project.query.filter(Project.id==project_id, Project.owner==current_user).first_or_404()
     if current_project.owner != current_user:
@@ -251,6 +254,7 @@ def add_time(project_id):
 # Page for editing a project
 @views.route('project/<int:project_id>/edit', methods=['GET','POST'])
 @login_required
+@check_confirmed
 def edit_project(project_id):
     current_project = Project.query.filter(Project.id==project_id, Project.owner==current_user).first_or_404()
     if current_project.owner != current_user:
@@ -272,6 +276,7 @@ def edit_project(project_id):
 # Url for deleting a project
 @views.route('project/<int:project_id>/delete', methods=['POST'])
 @login_required
+@check_confirmed
 def delete_project(project_id):
     current_project = Project.query.filter(Project.id==project_id, Project.owner==current_user).first_or_404()
     if current_project.owner != current_user:
@@ -287,6 +292,7 @@ def delete_project(project_id):
 # Url for deleting an entry
 @views.route('project/delete/<int:entry_id>')
 @login_required
+@check_confirmed
 def delete_entry(entry_id):
     current_entry = Entry.query.join(Project).filter(and_(Entry.id==entry_id, Project.owner==current_user)).first_or_404(entry_id)
     db.session.delete(current_entry)
@@ -300,7 +306,7 @@ def delete_entry(entry_id):
 # Email with a link for changing a password
 def send_reset_mail(user):
     token = user.get_token()
-    msg = Message('Password Reset Request', sender='yourprojecttracker@gmail.com', recipients=[user.email])
+    msg = Message('Password Reset Request', recipients=[user.email])
     msg.body = f'''To reset your password, visit the following link:
 {url_for('views.reset_token', token=token, _external=True)}
     
