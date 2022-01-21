@@ -17,7 +17,7 @@
     </div>
     {% else %} 
     <!-- If User has projects -->
-    <div class="row d-flex flex-wrap justify-content-around">
+    <div class="row d-flex flex-wrap justify-content-center">
         <div class="col-md-5">
             <div class="display-2 my-3 mt-5">Hi, {{user.name}}!</div>
             <h3 class="my-3">Your projects:</h3>
@@ -31,9 +31,9 @@
                 {% endfor %}
             </div>
         </div>
-        <div class="col-md-6 my-5">
+        <div class="col-md-5">
             {% if no_entries_yet %}
-                <h3 class="text-center">Here will be your progress data.</h3>
+                <h3 class="text-center mt-5">Here will be your progress data.</h3>
                 <h5 class="text-center">Select a project and add some time to it!</h5>                
             {% else %}
             <h4 class="text-center">Last 30 Days Progress:</h4>

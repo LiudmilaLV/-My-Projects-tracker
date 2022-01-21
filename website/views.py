@@ -121,13 +121,24 @@ def project(project_id):
                         .order_by(Entry.date)
                         .all()
                         )
+    print('these_12weeks_entries = ')
+    print(these_12weeks_entries)
     raw_these_12weeks_d = []
     these_12weeks_l = []
     raw_week_of_year_for_data = []
+    to_be_added_to_the_next_week = 0
     for minute, week, year in these_12weeks_entries:
-        raw_these_12weeks_d.append(round((minute / 60),1))
-        raw_week_of_year_for_data.append([week,year])
+        if week == 0:
+            to_be_added_to_the_next_week = minute
+        elif week == 1:
+            raw_these_12weeks_d.append(round(((minute + to_be_added_to_the_next_week) / 60),1))
+            raw_week_of_year_for_data.append([week,year])
+            to_be_added_to_the_next_week = 0
+        else:
+            raw_these_12weeks_d.append(round((minute/ 60),1))
+            raw_week_of_year_for_data.append([week,year])
     week_of_year_for_data = raw_week_of_year_for_data.copy()
+    
             
     # Get 12 labels for "Last 12 weeks" chart, counting from current week Monday
     last_monday = current_day - timedelta(days=current_day.weekday())
@@ -144,6 +155,9 @@ def project(project_id):
     week_of_year_for_labels.reverse()
     
     # Adjust data-set according to it's week labels by ading zeros to the skipped weeks without data:
+    print(week_of_year_for_data)
+    print(raw_these_12weeks_d)
+    print(week_of_year_for_labels)
     these_12weeks_d = adjust_data(week_of_year_for_data, raw_these_12weeks_d, week_of_year_for_labels)
     
     week_goal = 0
