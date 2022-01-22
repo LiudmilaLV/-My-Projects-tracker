@@ -233,6 +233,7 @@ def project(project_id):
     alltime_data = json.dumps(alltime_d)
     alltime_labels = json.dumps(alltime_l)
     
+    footerfalse = True
     return render_template("project.html",
                             user = current_user, project_id = current_project.id,
                             name = current_project.project_name, notes = current_project.notes, week_goal = week_goal,
@@ -253,7 +254,8 @@ def project(project_id):
                             thismonth_summ_hours = thismonth_summ_hours,
                             these12weeks_summ_hours = these12weeks_summ_hours,
                             thisyear_summ_hours = thisyear_summ_hours,
-                            alltime_summ_hours = alltime_summ_hours
+                            alltime_summ_hours = alltime_summ_hours,
+                            footerfalse = footerfalse
                             )
 
 
