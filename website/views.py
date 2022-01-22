@@ -121,22 +121,37 @@ def project(project_id):
                         .order_by(Entry.date)
                         .all()
                         )
-    print('these_12weeks_entries = ')
-    print(these_12weeks_entries)
     raw_these_12weeks_d = []
     these_12weeks_l = []
     raw_week_of_year_for_data = []
-    to_be_added_to_the_next_week = 0
+    add_to_adjacent = 0
+
+    # If first few days of a year are recognized by database not as belonged to the first week of the year, but to a week 0,
+    # in that case minutes worked on these days will be added to the last week of a previous year. 
+    # Or to the first week of a new year, if the last week is not present on the "Last 12 Weeks" chart.
+    week_52 = False
     for minute, week, year in these_12weeks_entries:
         if week == 0:
-            to_be_added_to_the_next_week = minute
-        elif week == 1:
-            raw_these_12weeks_d.append(round(((minute + to_be_added_to_the_next_week) / 60),1))
-            raw_week_of_year_for_data.append([week,year])
-            to_be_added_to_the_next_week = 0
+            add_to_adjacent = round((minute/ 60),1)
         else:
+            if week == 52:
+                week_52 = True
             raw_these_12weeks_d.append(round((minute/ 60),1))
             raw_week_of_year_for_data.append([week,year])
+        
+    if not week_52:
+        for i, week_and_year in enumerate(raw_week_of_year_for_data):
+            if 1 in week_and_year:
+                buff = raw_these_12weeks_d.pop(i)
+                buff = buff + add_to_adjacent
+                raw_these_12weeks_d.insert(i, buff)
+    else:
+        for i, week_and_year in enumerate(raw_week_of_year_for_data):
+            if 52 in week_and_year:
+                buff = raw_these_12weeks_d.pop(i)
+                buff = buff + add_to_adjacent
+                raw_these_12weeks_d.insert(i, buff)
+                
     week_of_year_for_data = raw_week_of_year_for_data.copy()
     
             
@@ -154,10 +169,7 @@ def project(project_id):
         week_of_year_for_labels.append([(last_monday - timedelta(days = 7 * week)).isocalendar()[1], (last_monday - timedelta(days = 7 * week)).isocalendar()[0]])
     week_of_year_for_labels.reverse()
     
-    # Adjust data-set according to it's week labels by ading zeros to the skipped weeks without data:
-    print(week_of_year_for_data)
-    print(raw_these_12weeks_d)
-    print(week_of_year_for_labels)
+    # Adjust data-set according to it's week labels by adding zeros to the skipped weeks without data:
     these_12weeks_d = adjust_data(week_of_year_for_data, raw_these_12weeks_d, week_of_year_for_labels)
     
     week_goal = 0
@@ -214,7 +226,7 @@ def project(project_id):
                         )
     alltime_d = []
     alltime_l = []
-    for minute, date in this_year_entries:
+    for minute, date in alltime_entries:
         alltime_d.append(round((minute / 60),1))
         alltime_l.append(date.strftime("%B, %Y"))
     alltime_summ_hours = round(sum(alltime_d),1)
