@@ -4,7 +4,7 @@ from flask_login import login_required, current_user
 from .models import User, Project, Entry
 from . import db, mail, bcrypt
 from .forms import AddProjectForm, EditProjectForm, EntryForm, ResetRequestForm, ResetPasswordForm
-from .helper import adjust_data
+from .helper import adjust_data, check_confirmed
 from sqlalchemy import extract, and_
 from sqlalchemy.sql import func
 from flask_mail import Message
@@ -16,6 +16,7 @@ views = Blueprint('views', __name__)
 
 @views.route('/', methods=['GET', 'POST']) 
 @login_required
+@check_confirmed
 def home():
     # Get data for pie-chart (for last 30 days projects)
     current_day = datetime.utcnow().date()
@@ -60,6 +61,7 @@ def home():
 # Individual page with a particular project data
 @views.route('project/<int:project_id>', methods=['GET', 'POST'])
 @login_required
+@check_confirmed
 def project(project_id):
     # Check page accessibility rights
     current_project = Project.query.filter(Project.id==project_id, Project.owner==current_user).first_or_404()
@@ -122,10 +124,36 @@ def project(project_id):
     raw_these_12weeks_d = []
     these_12weeks_l = []
     raw_week_of_year_for_data = []
+    add_to_adjacent = 0
+
+    # If first few days of a year are recognized by database not as belonged to the first week of the year, but to a week 0,
+    # in that case minutes worked on these days will be added to the last week of a previous year. 
+    # Or to the first week of a new year, if the last week is not present on the "Last 12 Weeks" chart.
+    week_52 = False
     for minute, week, year in these_12weeks_entries:
-        raw_these_12weeks_d.append(round((minute / 60),1))
-        raw_week_of_year_for_data.append([week,year])
+        if week == 0:
+            add_to_adjacent = round((minute/ 60),1)
+        else:
+            if week == 52:
+                week_52 = True
+            raw_these_12weeks_d.append(round((minute/ 60),1))
+            raw_week_of_year_for_data.append([week,year])
+        
+    if not week_52:
+        for i, week_and_year in enumerate(raw_week_of_year_for_data):
+            if 1 in week_and_year:
+                buff = raw_these_12weeks_d.pop(i)
+                buff = buff + add_to_adjacent
+                raw_these_12weeks_d.insert(i, buff)
+    else:
+        for i, week_and_year in enumerate(raw_week_of_year_for_data):
+            if 52 in week_and_year:
+                buff = raw_these_12weeks_d.pop(i)
+                buff = buff + add_to_adjacent
+                raw_these_12weeks_d.insert(i, buff)
+                
     week_of_year_for_data = raw_week_of_year_for_data.copy()
+    
             
     # Get 12 labels for "Last 12 weeks" chart, counting from current week Monday
     last_monday = current_day - timedelta(days=current_day.weekday())
@@ -141,7 +169,7 @@ def project(project_id):
         week_of_year_for_labels.append([(last_monday - timedelta(days = 7 * week)).isocalendar()[1], (last_monday - timedelta(days = 7 * week)).isocalendar()[0]])
     week_of_year_for_labels.reverse()
     
-    # Adjust data-set according to it's week labels by ading zeros to the skipped weeks without data:
+    # Adjust data-set according to it's week labels by adding zeros to the skipped weeks without data:
     these_12weeks_d = adjust_data(week_of_year_for_data, raw_these_12weeks_d, week_of_year_for_labels)
     
     week_goal = 0
@@ -198,13 +226,14 @@ def project(project_id):
                         )
     alltime_d = []
     alltime_l = []
-    for minute, date in this_year_entries:
+    for minute, date in alltime_entries:
         alltime_d.append(round((minute / 60),1))
         alltime_l.append(date.strftime("%B, %Y"))
     alltime_summ_hours = round(sum(alltime_d),1)
     alltime_data = json.dumps(alltime_d)
     alltime_labels = json.dumps(alltime_l)
     
+    footerfalse = True
     return render_template("project.html",
                             user = current_user, project_id = current_project.id,
                             name = current_project.project_name, notes = current_project.notes, week_goal = week_goal,
@@ -225,13 +254,15 @@ def project(project_id):
                             thismonth_summ_hours = thismonth_summ_hours,
                             these12weeks_summ_hours = these12weeks_summ_hours,
                             thisyear_summ_hours = thisyear_summ_hours,
-                            alltime_summ_hours = alltime_summ_hours
+                            alltime_summ_hours = alltime_summ_hours,
+                            footerfalse = footerfalse
                             )
 
 
 # Page for adding working time to a project manually or using timer (stop watch)
 @views.route('project/<int:project_id>/addtime', methods=['GET','POST'])
 @login_required
+@check_confirmed
 def add_time(project_id):
     current_project = Project.query.filter(Project.id==project_id, Project.owner==current_user).first_or_404()
     if current_project.owner != current_user:
@@ -251,6 +282,7 @@ def add_time(project_id):
 # Page for editing a project
 @views.route('project/<int:project_id>/edit', methods=['GET','POST'])
 @login_required
+@check_confirmed
 def edit_project(project_id):
     current_project = Project.query.filter(Project.id==project_id, Project.owner==current_user).first_or_404()
     if current_project.owner != current_user:
@@ -272,6 +304,7 @@ def edit_project(project_id):
 # Url for deleting a project
 @views.route('project/<int:project_id>/delete', methods=['POST'])
 @login_required
+@check_confirmed
 def delete_project(project_id):
     current_project = Project.query.filter(Project.id==project_id, Project.owner==current_user).first_or_404()
     if current_project.owner != current_user:
@@ -287,6 +320,7 @@ def delete_project(project_id):
 # Url for deleting an entry
 @views.route('project/delete/<int:entry_id>')
 @login_required
+@check_confirmed
 def delete_entry(entry_id):
     current_entry = Entry.query.join(Project).filter(and_(Entry.id==entry_id, Project.owner==current_user)).first_or_404(entry_id)
     db.session.delete(current_entry)
@@ -300,7 +334,7 @@ def delete_entry(entry_id):
 # Email with a link for changing a password
 def send_reset_mail(user):
     token = user.get_token()
-    msg = Message('Password Reset Request', sender='yourprojecttracker@gmail.com', recipients=[user.email])
+    msg = Message('Password Reset Request', recipients=[user.email])
     msg.body = f'''To reset your password, visit the following link:
 {url_for('views.reset_token', token=token, _external=True)}
     

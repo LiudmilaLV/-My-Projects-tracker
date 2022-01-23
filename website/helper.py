@@ -1,3 +1,20 @@
+from functools import wraps
+from flask import flash, redirect, url_for
+from flask_login import current_user
+
+# Set a decorator for checking if a user's email was confirmed
+def check_confirmed(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        if current_user.confirmed is False:
+            return redirect(url_for('auth.unconfirmed'))
+        return func(*args, **kwargs)
+
+    return decorated_function
+
+
+
+
 
 """ 
 creating 12-element "these_12weeks_d" list, even if "raw_these_12weeks_d" is shorter,
