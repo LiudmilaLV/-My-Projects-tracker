@@ -4,6 +4,6 @@ A minimalistic web-app to measure time you spend on your projects and track your
 
 ![home page](assets/ypt_home.png)
 
-#### Flask Libraries Used
+### REQUIREMENTS
 
-![flask libraries](assets/flask.png)
+![requirements1](assets/requirements1.png) ![requirements2](assets/requirements2.png)
