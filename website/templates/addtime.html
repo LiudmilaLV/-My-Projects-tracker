@@ -100,7 +100,7 @@
             clearInterval(interval);
             interval = null;
             if (seconds > 60) {
-                durationField.value = seconds;
+                durationField.value = Math.round(seconds/60);
             }
             else {
                 warnMessage.innerText = 'You can not add less than a minute.';

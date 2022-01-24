@@ -40,7 +40,7 @@ class AddProjectForm(FlaskForm):
     
 class EntryForm(FlaskForm):
     date = DateField('Date', format='%Y-%m-%d', default=datetime.today)
-    duration = IntegerField('Duration (at least 1 minute)', default=1,validators=[DataRequired(), NumberRange(min=1, max=None, message='Enter atleast 1 minute')])
+    duration = IntegerField('Duration in minutes (at least 1 minute)', default=1,validators=[DataRequired(), NumberRange(min=1, max=None, message='Enter atleast 1 minute')])
     project = HiddenField(default="{{ current_project.id }}")
     submit = SubmitField('Add Time to the Project')
 
