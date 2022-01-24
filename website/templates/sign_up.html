@@ -16,7 +16,7 @@
                         {% endfor %}
                     </div>
                 {% else %}
-                    {{ form.name(class="form-control") }}
+                    {{ form.name(class="form-control", autocomplete="off") }}
                 {% endif %} 
             </div>
             <div class="form-group">
@@ -29,7 +29,7 @@
                         {% endfor %}
                     </div>
                 {% else %}
-                    {{ form.email(class="form-control") }}
+                    {{ form.email(class="form-control", autocomplete="off") }}
                 {% endif %}
             </div>
             <div class="form-group">
@@ -42,7 +42,7 @@
                         {% endfor %}
                     </div>
                 {% else %}
-                    {{ form.password(class="form-control") }}
+                    {{ form.password(class="form-control", autocomplete="off") }}
                 {% endif %}           
             </div>
             <div class="form-group">
@@ -55,7 +55,7 @@
                         {% endfor %}
                     </div>
                 {% else %}
-                    {{ form.confirm_password(class="form-control") }}
+                    {{ form.confirm_password(class="form-control", autocomplete="off") }}
                 {% endif %} 
             </div>
         </fieldset>
