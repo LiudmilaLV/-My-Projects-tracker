@@ -64,9 +64,12 @@
         const buttonStop = document.getElementById('btn-stop');
         const buttonReset = document.getElementById('btn-reset');
         const durationField = document.getElementById('duration');
-        const warnMessage = document.getElementById('warn')
+        const warnMessage = document.getElementById('warn');
     
         let seconds = 0;
+        let startTime = 0;
+        let nowTime = 0;
+        let stoppeedSeconds = 0;
         let interval = null;
     
         buttonStart.addEventListener('click', start);
@@ -76,7 +79,8 @@
         buttonReset.addEventListener('click', reset);
     
         function timer(){
-            seconds++;
+            nowTime = new Date().getTime() / 1000;
+            seconds = Math.floor(nowTime - startTime + stoppeedSeconds);
             let hrs = Math.floor(seconds / 3600);
             let mins = Math.floor((seconds - (hrs * 3600)) / 60);
             let secs = seconds % 60;
@@ -93,12 +97,15 @@
             if (interval) {
                 return
             }
+            startTime = new Date().getTime() / 1000;
+            localStorage.setItem("startTime", startTime);
             interval = setInterval(timer, 1000);
         }
     
         function stop () {
             clearInterval(interval);
             interval = null;
+            stoppeedSeconds = seconds;
             if (seconds > 60) {
                 durationField.value = Math.round(seconds/60);
             }
@@ -112,6 +119,7 @@
             seconds = 0;
             time_el.innerText = '00:00:00';
             warnMessage.innerText = '';
+            localStorage.clear();
         }
     </script>
 {% endblock %}

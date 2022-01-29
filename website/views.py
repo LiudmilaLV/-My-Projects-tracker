@@ -13,8 +13,12 @@ from datetime import datetime, timedelta
 
 views = Blueprint('views', __name__)
 
+@views.route('/')
+def welcome():
+    return render_template('welcome.html')
 
-@views.route('/', methods=['GET', 'POST']) 
+
+@views.route('/home', methods=['GET', 'POST']) 
 @login_required
 @check_confirmed
 def home():

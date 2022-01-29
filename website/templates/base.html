@@ -14,7 +14,11 @@
 <body>
   <nav class="navbar navbar-expand-md navbar-dark bg-primary py-2">
     <div class="container-xl">
+      {% if user and user.is_authenticated %}
       <a class="navbar-brand" href="{{ url_for('views.home') }}">
+      {% else %}
+      <a class="navbar-brand" href="{{ url_for('views.welcome') }}">
+      {% endif %}
         <img src="{{ url_for('static', filename='ypt_logo.svg') }}" class="img-fluid" alt="Your Project Tracker Logo" width="28" height="28" class="d-inline-block align-text-top">
         <span>Your Project Tracker</span>
       </a>

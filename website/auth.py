@@ -108,4 +108,4 @@ def login():
 def logout():
     logout_user()
     flash('You logged out!', category='info')
-    return redirect(url_for('auth.login'))
+    return redirect(url_for('views.welcome'))

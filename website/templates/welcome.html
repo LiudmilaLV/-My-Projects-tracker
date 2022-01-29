@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Welcome to YPT{% endblock %}
+{% block content %}
+<div class="container min-vh-100">
+    <div class="container col-md-10 my-5 mb-3 text-center">
+        <h1>Welcome to Your Project Tracker! <img class="img-fluid" src="{{ url_for('static', filename='ypt_logo.svg') }}" alt="logo" width="90"></h1>
+    </div>
+    <div class="row d-flex flex-wrap justify-content-center">
+        <div class="container col-md-6 my-3">
+            <br>
+            <h4>A minimalistic web-app to measure time you spend on your projects and track your progress with useful infographics.</h4>
+        </div>
+        <div class="container col-md-6 my-3">
+            <ul>
+                <li>Create an account</li>
+                <li>Add projects to track</li>
+                <li>Use a timer/stopwatch here online</li>
+                <li>Or add minutes to a project manually</li>
+                <li>Get "Last 30 Days Progress" pie chart with all your recent projects</li>
+                <li>Watch your progress throughout a week, a month or a year</li>    
+                <li>Set a weekly goal and get a scoreboard-like "Last 12 weeks" chart</li>    
+            </ul>
+        </div>
+    </div>
+    <div class="container col-md-8 my-5 pb-2 text-center">
+            <h4>Please <a class="ml-2" href="{{ url_for('auth.sign_up') }}">Sign Up</a> to create an account or <a class="ml-2" href="{{ url_for('auth.login') }}">Login</a>, if you already have one.</h4>
+    </div>
+</div>
+{% endblock%}

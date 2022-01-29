@@ -9,10 +9,10 @@ A minimalistic web-app to measure time you spend on your projects and track your
 
 - Create an account
 - Add projects to track
-- "Last 30 Days Progress" pie chart on homepage
-- Add time to a project manually
-- Use a timer/stopwatch online
-- Watch your progress through a week, a month or a year
+- Use a timer/stopwatch here online
+- Or add minutes to a project manually
+- Get "Last 30 Days Progress" pie chart with all your recent projects
+- Watch your progress throughout a week, a month or a year
 - Set a weekly goal and get a scoreboard-like "Last 12 weeks" chart
 ### Screenshots
 ![screenshot1](assets/chart_1.png)
@@ -36,5 +36,5 @@ SQLAlchemy==1.4.29
 Werkzeug==2.0.2
 WTForms==3.0.1
 ```
-### And also Techlonogies
+### And Techlonogies
 **SQLite, Bootstrap 5, Chart.js and Docker**
