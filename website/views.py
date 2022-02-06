@@ -10,6 +10,7 @@ from sqlalchemy.sql import func
 from flask_mail import Message
 import json
 from datetime import datetime, timedelta
+from .emails import reset_email_text
 
 views = Blueprint('views', __name__)
 
@@ -339,11 +340,7 @@ def delete_entry(entry_id):
 def send_reset_mail(user):
     token = user.get_token()
     msg = Message('Password Reset Request', recipients=[user.email])
-    msg.body = f'''To reset your password, visit the following link:
-{url_for('views.reset_token', token=token, _external=True)}
-    
-If you did not make this password reset request, please ignore this email.
-'''
+    msg.body = reset_email_text(token)
     mail.send(msg)
 
 # Page for requesting password reset

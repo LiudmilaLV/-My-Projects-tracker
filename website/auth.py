@@ -8,6 +8,7 @@ from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer
 from flask import current_app
 from datetime import datetime
+from .emails import confirm_mail_text
 
 auth = Blueprint('auth', __name__)
 
@@ -44,12 +45,7 @@ def sign_up():
 def send_confirmation_email(email):
     token = generate_confirmation_token(email)
     msg = Message('Email confirmation', recipients=[email])
-    msg.body = f'''Welcome to Your Project Tracker! 
-To confirm your email, please follow the link:
-{url_for('auth.confirm_email', token=token, _external=True)}
-    
-If you did not signup for yourprojecttracker.com, please ignore this email.
-'''
+    msg.body = confirm_mail_text(token)
     mail.send(msg)
 
 # Url for email confirmation

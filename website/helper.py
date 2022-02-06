@@ -1,5 +1,5 @@
 from functools import wraps
-from flask import flash, redirect, url_for
+from flask import redirect, url_for
 from flask_login import current_user
 
 # Set a decorator for checking if a user's email was confirmed
