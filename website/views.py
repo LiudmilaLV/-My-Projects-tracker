@@ -340,7 +340,7 @@ def delete_entry(entry_id):
 def send_reset_mail(user):
     token = user.get_token()
     msg = Message('Password Reset Request', recipients=[user.email])
-    msg.body = reset_email_text(token)
+    msg.html = reset_email_text(token)
     mail.send(msg)
 
 # Page for requesting password reset

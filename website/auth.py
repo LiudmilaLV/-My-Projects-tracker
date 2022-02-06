@@ -45,7 +45,7 @@ def sign_up():
 def send_confirmation_email(email):
     token = generate_confirmation_token(email)
     msg = Message('Email confirmation', recipients=[email])
-    msg.body = confirm_mail_text(token)
+    msg.html = confirm_mail_text(token)
     mail.send(msg)
 
 # Url for email confirmation

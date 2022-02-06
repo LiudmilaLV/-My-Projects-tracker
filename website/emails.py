@@ -27,7 +27,7 @@ def confirm_mail_text(token):
 					<table class="column" style="border-spacing: 0;width: 100%;max-width: 300px;display: inline-block;vertical-align: center;">
 						<tr>
 							<td style="padding: 0 0 15px 60px;">
-								<a href="https://yourprojecttracker.com/"><img src="/images/ypt_logo.svg" alt="Logo" width="80" title="Logo" style="border: 0;"></a>
+								<a href="https://yourprojecttracker.com/"><img src="{{ url_for('static', filename='ypt_logo.svg') }}" alt="logo" width="50" title="logo" style="border: 0;"></a>
 							</td>
 						</tr>
 					</table>
@@ -99,7 +99,7 @@ def reset_email_text(token):
 					<table class="column" style="border-spacing: 0;width: 100%;max-width: 300px;display: inline-block;vertical-align: center;">
 						<tr>
 							<td style="padding: 0 0 15px 60px;">
-								<a href="https://yourprojecttracker.com/"><img src="{{ url_for('static', filename='ypt_logo.svg') }}" alt="Logo" width="80" title="Logo" style="border: 0;"></a>
+								<a href="https://yourprojecttracker.com/"><img src="{{ url_for('static', filename='ypt_logo.svg') }}" alt="logo" width="50" title="logo" style="border: 0;"></a>
 							</td>
 						</tr>
 					</table>
