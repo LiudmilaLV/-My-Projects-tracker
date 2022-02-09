@@ -1,10 +1,11 @@
-# Your Project Tracker
+# [**Your Project Tracker**](https://yourprojecttracker.com/)
 
 A minimalistic web-app to measure time you spend on your projects and track your progress with useful infographics.
 
-[**Your Project Tracker**](https://yourprojecttracker.com/)
+Built with Flask, SQLite, Bootstrap 5 and Chart.js.
 
 ![home page](assets/ypt_home.png)
+
 ### Features
 
 - Create an account
@@ -14,27 +15,37 @@ A minimalistic web-app to measure time you spend on your projects and track your
 - Get "Last 30 Days Progress" pie chart with all your recent projects
 - Watch your progress throughout a week, a month or a year
 - Set a weekly goal and get a scoreboard-like "Last 12 weeks" chart
+
 ### Screenshots
+
 ![screenshot1](assets/chart_1.png)
 ![screenshot2](assets/chart_2.png)
 ![screenshot3](assets/chart_3.png)
 
-### Flask Libraries Used
+## Run Locally
+
+(Docker and Docker-Compose required)
+
+1. Clone the project
+
 ```bash
-bcrypt==3.2.0
-email-validator==1.1.3
-Flask==2.0.2
-Flask-Bcrypt==0.7.1
-Flask-Login==0.5.0
-Flask-Mail==0.9.1
-Flask-SQLAlchemy==2.5.1
-Flask-WTF==0.15.1
-itsdangerous==2.0.1
-Jinja2==3.0.3
-MarkupSafe==2.0.1
-SQLAlchemy==1.4.29
-Werkzeug==2.0.2
-WTForms==3.0.1
+  git clone https://github.com/LiudmilaLV/Your_Project_Tracker.git
 ```
-### And Techlonogies
-**SQLite, Bootstrap 5, Chart.js and Docker**
+
+2. Go to the project directory
+
+```bash
+  cd Your_Project_Tracker
+```
+
+3. Build the image
+
+```bash
+  docker-compose -f docker-compose.local.yml build
+```
+
+4. Run the container
+
+```bash
+  docker-compose -f docker-compose.local.yml up
+```
