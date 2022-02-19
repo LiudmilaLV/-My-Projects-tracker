@@ -12,36 +12,46 @@ from .emails import confirm_mail_text
 
 auth = Blueprint('auth', __name__)
 
+
 def generate_confirmation_token(email):
     s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
     return s.dumps(email, salt=current_app.config['SECURITY_PASSWORD_SALT'])
 
+
 def confirm_token(token, expiration=3600):
     s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
     try:
-        email = s.loads(token, salt=current_app.config['SECURITY_PASSWORD_SALT'], max_age=expiration)
+        email = s.loads(
+            token, salt=current_app.config['SECURITY_PASSWORD_SALT'], max_age=expiration)
     except:
         return False
     return email
 
 # Get data via sing-up form for creating a new user
-@auth.route('/sign_up', methods=['GET','POST'])
+
+
+@auth.route('/sign_up', methods=['GET', 'POST'])
 def sign_up():
     if current_user.is_authenticated:
         return redirect(url_for('views.home'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        new_user = User(name=form.name.data, email=form.email.data, password=hashed_password, confirmed=False)
+        hashed_password = bcrypt.generate_password_hash(
+            form.password.data).decode('utf-8')
+        new_user = User(name=form.name.data, email=form.email.data,
+                        password=hashed_password, confirmed=False)
         db.session.add(new_user)
         db.session.commit()
         login_user(new_user, remember=True)
         send_confirmation_email(new_user.email)
-        flash(f'Email confirmation link has been sent to {new_user.email}. Please check your email.', category='info')
+        flash(
+            f'Email confirmation link has been sent to {new_user.email}. Please check your email.', category='info')
         return redirect(url_for('views.home'))
     return render_template('sign_up.html', form=form)
 
 # Email with a link for email confirmation
+
+
 def send_confirmation_email(email):
     token = generate_confirmation_token(email)
     msg = Message('Email confirmation', recipients=[email])
@@ -49,12 +59,15 @@ def send_confirmation_email(email):
     mail.send(msg)
 
 # Url for email confirmation
+
+
 @auth.route('/confirm/<token>')
 def confirm_email(token):
     try:
         email = confirm_token(token)
     except:
-        flash('The confirmation link is expired. Try to sign up again', category='warning')
+        flash('The confirmation link is expired. Try to sign up again',
+              category='warning')
     user = User.query.filter_by(email=email).first_or_404()
     if user.confirmed:
         flash('Account already confirmed. Please login.', 'success')
@@ -64,8 +77,10 @@ def confirm_email(token):
         user.confirmed_on = datetime.utcnow()
         db.session.add(user)
         db.session.commit()
-        flash(f'Account for {user.name} successfully confirmed!', category='success')
+        flash(
+            f'Account for {user.name} successfully confirmed!', category='success')
     return redirect(url_for('views.home'))
+
 
 @auth.route('/unconfirmed')
 @login_required
@@ -75,6 +90,7 @@ def unconfirmed():
     flash('Please confirm your account!', category='warning')
     return render_template('unconfirmed.html')
 
+
 @auth.route('/resend')
 @login_required
 def resend_confirmation():
@@ -83,22 +99,27 @@ def resend_confirmation():
     return redirect(url_for('auth.unconfirmed'))
 
 # Implementation of login function
-@auth.route('/login', methods=['GET','POST'])
+
+
+@auth.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('views.home'))
     form = LoginForm()
-    if form.validate_on_submit():  
+    if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        if user and bcrypt.check_password_hash(user.password, form.password.data):        
+        if user and bcrypt.check_password_hash(user.password, form.password.data):
             flash('You logged in successfully!', category='success')
-            login_user(user, remember=form.remember.data)            
-            return redirect(url_for('views.home')) 
+            login_user(user, remember=form.remember.data)
+            return redirect(url_for('views.home'))
         else:
-            flash('Login unsuccessful. Please check email and password', category='warning')    
+            flash('Login unsuccessful. Please check email and password',
+                  category='warning')
     return render_template('login.html', form=form, user=current_user)
 
 # Logout user
+
+
 @auth.route('/logout')
 @login_required
 def logout():

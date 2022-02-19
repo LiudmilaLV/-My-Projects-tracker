@@ -49,3 +49,5 @@ Built with Flask, SQLite, Bootstrap 5 and Chart.js.
 ```bash
   docker-compose -f docker-compose.local.yml up
 ```
+
+[![GitHub Super-Linter](https://github.com/LiudmilaLV/Your_Project_Tracker/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter)
