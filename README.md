@@ -23,7 +23,7 @@ Built with Flask, SQLite, Bootstrap 5 and Chart.js.
 ![screenshot2](assets/chart_2.png)
 ![screenshot3](assets/chart_3.png)
 
-# Run Locally
+## Run Locally
 
 (Docker and Docker-Compose required)
 
