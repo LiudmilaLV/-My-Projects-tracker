@@ -1,13 +1,13 @@
-# [![GitHub Super-Linter](https://github.com/LiudmilaLV/Your_Project_Tracker/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter)
 # [**Your Project Tracker**](https://yourprojecttracker.com/)
 
 A minimalistic web-app to measure time you spend on your projects and track your progress with useful infographics.
 
 Built with Flask, SQLite, Bootstrap 5 and Chart.js.
+## [![GitHub Super-Linter](https://github.com/LiudmilaLV/Your_Project_Tracker/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter)
 
 ![home page](assets/ypt_home.png)
 
-### Features
+## Features
 
 - Create an account
 - Add projects to track
@@ -17,13 +17,13 @@ Built with Flask, SQLite, Bootstrap 5 and Chart.js.
 - Watch your progress throughout a week, a month or a year
 - Set a weekly goal and get a scoreboard-like "Last 12 weeks" chart
 
-### Screenshots
+## Screenshots
 
 ![screenshot1](assets/chart_1.png)
 ![screenshot2](assets/chart_2.png)
 ![screenshot3](assets/chart_3.png)
 
-## Run Locally
+# Run Locally
 
 (Docker and Docker-Compose required)
 
