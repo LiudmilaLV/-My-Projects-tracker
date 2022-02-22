@@ -1,4 +1,4 @@
-[![GitHub Super-Linter](https://github.com/LiudmilaLV/Your_Project_Tracker/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter)
+# [![GitHub Super-Linter](https://github.com/LiudmilaLV/Your_Project_Tracker/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter)
 # [**Your Project Tracker**](https://yourprojecttracker.com/)
 
 A minimalistic web-app to measure time you spend on your projects and track your progress with useful infographics.
