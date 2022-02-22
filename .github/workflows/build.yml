@@ -28,3 +28,8 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ghcr.io/liudmilalv/your_project_tracker:latest
+
+      - name: Scan for vulnerabilities
+        uses: crazy-max/ghaction-container-scan@v1
+        with:
+          image: ghcr.io/liudmilalv/your_project_tracker:latest
