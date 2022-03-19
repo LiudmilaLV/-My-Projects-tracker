@@ -3,7 +3,8 @@
 A minimalistic web-app to measure time you spend on your projects and track your progress with useful infographics.
 
 Built with Flask, SQLite, Bootstrap 5 and Chart.js.
-## [![GitHub Super-Linter](https://github.com/LiudmilaLV/Your_Project_Tracker/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter)
+## [![GitHub Super-Linter](https://github.com/LiudmilaLV/Your_Project_Tracker/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter) [![YouTube](https://img.shields.io/youtube/views/f9RFgYAZYcw?label=Video%20Demo&style=social)](https://youtu.be/f9RFgYAZYcw)
+
 
 ![home page](assets/ypt_home.png)
 
@@ -51,3 +52,8 @@ Built with Flask, SQLite, Bootstrap 5 and Chart.js.
   docker-compose -f docker-compose.local.yml up
 ```
 
+5. The app will be available on:
+
+```bash
+http://0.0.0.0:5000/
+```
